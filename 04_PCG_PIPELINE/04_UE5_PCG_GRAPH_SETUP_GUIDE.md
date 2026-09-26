@@ -43,7 +43,7 @@
    - `PetalLength` (`float` = 85000.0)
    - `MaxWidth` (`float` = 25000.0)
    - `OpenAmount` (`float` ดึงมาจาก Actor Blueprint)
-3. รันสมการตามที่ระบุใน [02_RADIAL_GRID_MATH.md](file:///d:/2/OWN/HOPELESS/01_WORLD/02_RADIAL_GRID_MATH.md)
+3. รันสมการตามที่ระบุใน [02_RADIAL_GRID_MATH.md](../01_WORLD/02_RADIAL_GRID_MATH.md)
 4. สั่ง **Add Attribute** ให้กับ Point Data:
    - `PetalIndex` (`int32`)
    - `PetalU` (`float`)

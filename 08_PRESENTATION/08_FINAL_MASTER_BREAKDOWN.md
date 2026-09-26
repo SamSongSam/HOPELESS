@@ -45,7 +45,7 @@
 | :--- | :--- |
 | **ขนาดครอบคลุม (Dimensions)** | เส้นผ่านศูนย์กลางคลุมเมือง `3,000m` (รัศมี 1,500m), ความสูงโดม `+650.0m` |
 | **โครงข่ายเรขาคณิต (Geometry)** | ทรงกระบอกโดมครึ่งทรงกลม ตาข่าย 6 เหลี่ยม (Hex-Grid) 513 จุดโหนด, 992 Polygons |
-| **โมเดล 3D อ้างอิง** | [output/hex_barrier_dome_ue_cm.obj](file:///d:/2/OWN/HOPELESS/output/hex_barrier_dome_ue_cm.obj) |
+| **โมเดล 3D อ้างอิง** | [output/hex_barrier_dome_ue_cm.obj](../output/hex_barrier_dome_ue_cm.obj) |
 | **โหมดการทำงาน (Modes)** | • **ปกติ (Solstice)**: พลังงาน 30% กรองรังสี UV, ละอองเกลือ และควบคุมสภาพอากาศ<br>• **ดำน้ำลึก (Submerged Dive)**: พลังงาน 100% กักเก็บมวลอากาศ 3,000m ต้านแรงดันน้ำมหาศาล |
 | **บทบาทสถาปัตยกรรม & Lore** | ปราการด่านแรกที่ปกป้องมนุษยชาติยุคหลังมหาอุทกภัยจากพายุไซโคลนระดับแคตทิกรี 6 และคลื่นยักษ์สึนามิ |
 
@@ -113,7 +113,7 @@
 
 | คุณสมบัติ (Attribute) | ข้อมูลจำเพาะทางวิศวกรรม & Lore (Specification) |
 | :--- | :--- |
-| **ต้นแบบอ้างอิงหลัก (Canon Reference)**| สอดคล้องกับภาพต้นแบบสถาปัตยกรรม [LOTUS_ACADEMY_CITY.jpg](file:///d:/2/OWN/HOPELESS/LOTUS_ACADEMY_CITY.jpg) 100% |
+| **ต้นแบบอ้างอิงหลัก (Canon Reference)**| สอดคล้องกับภาพต้นแบบสถาปัตยกรรม [LOTUS_ACADEMY_CITY.jpg](../LOTUS_ACADEMY_CITY.jpg) 100% |
 | **พิกัดและระดับความสูง** | ระดับผิวน้ำ `0.0m`, ติดตั้งยื่นลอยอิสระบริเวณขอบนอกของกลีบดอกบัว ($R = 750m - 1,100m$) |
 | **โครงสร้างทุ่นลอย (Pontoon Docks)** | ท่าเรือทุ่นลอยนิ้วมือ (Finger Pontoons) ยื่นลงในน้ำ ไม่เจาะยึดแข็งกับตัวกลีบ เพื่อให้กลีบขยับตัวได้อิสระ |
 | **สะพานเทียบพับได้ (Articulated Ramp)**| ทางลาดเทียบเรือระบบไฮดรอลิก ยกพับเก็บแนบผนังกลีบดอกบัวก่อนเมืองดำน้ำลึก |
@@ -534,10 +534,10 @@
 
 ## 9. การเชื่อมโยงไฟล์และระบบอัตโนมัติในโครงการ (Pipeline Integration)
 
-- **สมุดภาพ CAD และพิมพ์เขียวฉบับสมบูรณ์**: อ่านรายละเอียดระดับชิ้นส่วนพร้อมการคำนวณ Finite Element เพิ่มเติมได้ที่ [output/blueprints/BLUEPRINT_INDEX.md](file:///d:/2/OWN/HOPELESS/output/blueprints/BLUEPRINT_INDEX.md)
-- **ภาพประกอบ Render 8K แยกเดี่ยว**: เข้าถึงโฟลเดอร์ไฟล์ภาพทั้งหมดได้ที่ [08_PRESENTATION/parts/](file:///d:/2/OWN/HOPELESS/08_PRESENTATION/parts/)
-- **สคริปต์สร้างการแยกส่วนอัตโนมัติ**: รันได้จาก [scripts/generate_subsystem_blueprints.py](file:///d:/2/OWN/HOPELESS/scripts/generate_subsystem_blueprints.py)
+- **สมุดภาพ CAD และพิมพ์เขียวฉบับสมบูรณ์**: อ่านรายละเอียดระดับชิ้นส่วนพร้อมการคำนวณ Finite Element เพิ่มเติมได้ที่ [output/blueprints/BLUEPRINT_INDEX.md](../output/blueprints/BLUEPRINT_INDEX.md)
+- **ภาพประกอบ Render 8K แยกเดี่ยว**: เข้าถึงโฟลเดอร์ไฟล์ภาพทั้งหมดได้ที่ [08_PRESENTATION/parts/](parts)
+- **สคริปต์สร้างการแยกส่วนอัตโนมัติ**: รันได้จาก [scripts/generate_subsystem_blueprints.py](../scripts/generate_subsystem_blueprints.py)
 - **โมเดล 3D Master Mesh (Unreal Engine cm units)**:
-  - เมืองดอกบัวรวม: [output/istrorigan_flower_city_ue_cm.obj](file:///d:/2/OWN/HOPELESS/output/istrorigan_flower_city_ue_cm.obj)
-  - ม่านบาเรียโดม: [output/hex_barrier_dome_ue_cm.obj](file:///d:/2/OWN/HOPELESS/output/hex_barrier_dome_ue_cm.obj)
-  - โครงข่ายจุด PCG พิกัดสมบูรณ์: [output/istrorigan_pcg_pointcloud.json](file:///d:/2/OWN/HOPELESS/output/istrorigan_pcg_pointcloud.json) และ [output/istrorigan_pcg_pointcloud.csv](file:///d:/2/OWN/HOPELESS/output/istrorigan_pcg_pointcloud.csv)
+  - เมืองดอกบัวรวม: [output/istrorigan_flower_city_ue_cm.obj](../output/istrorigan_flower_city_ue_cm.obj)
+  - ม่านบาเรียโดม: [output/hex_barrier_dome_ue_cm.obj](../output/hex_barrier_dome_ue_cm.obj)
+  - โครงข่ายจุด PCG พิกัดสมบูรณ์: [output/istrorigan_pcg_pointcloud.json](../output/istrorigan_pcg_pointcloud.json) และ [output/istrorigan_pcg_pointcloud.csv](../output/istrorigan_pcg_pointcloud.csv)

@@ -4,6 +4,7 @@
 ================================================================================
  Upgrades an EXISTING scene without rebuilding it:
    Part 03 petals -> lotus-grade generator
+   Absolute paths -> re-pointed at blueprintRoot ($HIP/..) so the project can move
    PCG Stages 0-2 -> blueprint loader, polar lattice, zoning (replaces the
                      baked-CSV 'py_lattice' layer)
  Details:
@@ -21,6 +22,7 @@
 
 import sys
 import os
+import re
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 if PACKAGE_DIR not in sys.path:
@@ -172,6 +174,39 @@ def _install_pcg(node):
             print("[*] %s switched ON so the live PCG layer is visible" % toggle)
 
 
+ABS_OUTPUT = re.compile(r'"[A-Za-z]:[/\\][^"]*?[/\\]output[/\\]')
+
+
+def _repath(node):
+    """Replace absolute project paths baked into existing nodes (old d:/2/OWN/HOPELESS
+    checkout) with paths relative to the HDA's blueprintRoot parm ($HIP/..)."""
+    n_fixed = 0
+    bp = '`chs("../blueprintRoot")`/output/'
+    for child in node.children():
+        tname = child.type().name()
+        for parm_name in ("file", "sopoutput"):
+            parm = child.parm(parm_name)
+            if parm is None or parm.parmTemplate().type().name() != "String":
+                continue
+            raw = parm.unexpandedString()
+            m = re.search(r"[/\\]output[/\\](.*)$", raw.replace("\\", "/"))
+            if m and re.match(r"^[A-Za-z]:[/\\]", raw):
+                parm.set(bp + m.group(1))
+                n_fixed += 1
+        if tname == "python":
+            code = child.parm("python").eval()
+            if ABS_OUTPUT.search(code):
+                code = ABS_OUTPUT.sub('ROOT + "/output/', code)
+                if "ROOT = " not in code:
+                    code = code.replace("import csv, os, hou\n",
+                                        "import csv, os, hou\n"
+                                        "ROOT = hou.pwd().parent().evalParm(\"blueprintRoot\")   # project root ($HIP/..)\n", 1)
+                child.parm("python").set(code)
+                n_fixed += 1
+    if n_fixed:
+        print("[*] re-pathed %d node parms to blueprintRoot ($HIP/..)" % n_fixed)
+
+
 def upgrade(node_path=NODE_PATH, save_path=None):
     hou = get_hou()
     node = hou.node(node_path)
@@ -196,6 +231,7 @@ def upgrade(node_path=NODE_PATH, save_path=None):
 
     _upgrade_network(node)
     _install_pcg(node)
+    _repath(node)
 
     # baked OBJs are not procedural and would hide the new petals
     hr = node.parm("useHighResParts")

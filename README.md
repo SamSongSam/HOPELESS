@@ -7,14 +7,14 @@
 
 ![Flower City - 8-Petal Barrier Academy Megastructure](ISTRORIGAN_FINAL_BREAKDOWN.jpg)
 
-> 📘 **ผังโครงสร้างสถาปัตยกรรมไฟนอลแบบละเอียด**: ดูคำอธิบายระบบทั้ง 8 พาร์ทอย่างละเอียดได้ที่ [08_PRESENTATION/08_FINAL_MASTER_BREAKDOWN.md](file:///d:/2/OWN/HOPELESS/08_PRESENTATION/08_FINAL_MASTER_BREAKDOWN.md)
+> 📘 **ผังโครงสร้างสถาปัตยกรรมไฟนอลแบบละเอียด**: ดูคำอธิบายระบบทั้ง 8 พาร์ทอย่างละเอียดได้ที่ [08_PRESENTATION/08_FINAL_MASTER_BREAKDOWN.md](08_PRESENTATION/08_FINAL_MASTER_BREAKDOWN.md)
 
 ---
 
 ## สารบัญโครงสร้างเอกสาร (Documentation Directory)
 
 ```
-d:/2/OWN/HOPELESS/
+<project>/
 ├── README.md                                  # สารบัญหลักและคำแนะนำการติดตั้ง PCG
 ├── 00_CORE/
 │   ├── FC_PCG_Types.h                         # [C++ Header] USTRUCTs, UENUMs & FTableRowBase
@@ -108,8 +108,8 @@ flowchart TD
 ---
 
 ## คู่มือเริ่มต้นสำหรับ Developer (Quick Start)
-1. **ติดตั้ง C++ Header**: นำ [FC_PCG_Types.h](file:///d:/2/OWN/HOPELESS/00_CORE/FC_PCG_Types.h) ไปใส่ในโฟลเดอร์ `Source/<Project>/Public/PCG/` ในโปรเจกต์ Unreal Engine ของคุณ
-2. **Import Data Tables**: ก๊อบปี้โค้ด JSON จาก [01_DATA_TABLE_DISTRICT_ZONING.md](file:///d:/2/OWN/HOPELESS/00_CORE/DATA_TABLES/01_DATA_TABLE_DISTRICT_ZONING.md), [02_DATA_TABLE_ASSET_ARCHETYPES.md](file:///d:/2/OWN/HOPELESS/00_CORE/DATA_TABLES/02_DATA_TABLE_ASSET_ARCHETYPES.md), และ [03_DATA_TABLE_SOCKET_MATRIX.md](file:///d:/2/OWN/HOPELESS/00_CORE/DATA_TABLES/03_DATA_TABLE_SOCKET_MATRIX.md) เข้า Content Browser
-3. **ศึกษาการคำนวณพิกัดกลีบดอกไม้**: อ่านสูตรคณิตศาสตร์และโค้ด VEX/Blueprint ได้ที่ [02_RADIAL_GRID_MATH.md](file:///d:/2/OWN/HOPELESS/01_WORLD/02_RADIAL_GRID_MATH.md)
-4. **ประกอบ PCG Graph ใน UE5**: ทำตามขั้นตอนทีละโหนดใน [04_UE5_PCG_GRAPH_SETUP_GUIDE.md](file:///d:/2/OWN/HOPELESS/04_PCG_PIPELINE/04_UE5_PCG_GRAPH_SETUP_GUIDE.md)
-5. **ต่อระบบโครงข่ายเกมเพลย์ & State Adapter**: ดูการวางระบบ Maglev, ท่อ O2, และระบบตัดตอนน้ำท่วมได้ที่ [03_TRANSIT_AND_RESOURCE_GRAPH.md](file:///d:/2/OWN/HOPELESS/04_PCG_PIPELINE/03_TRANSIT_AND_RESOURCE_GRAPH.md) และ [02_PCG_RUNTIME_STATE_ADAPTER.md](file:///d:/2/OWN/HOPELESS/04_PCG_PIPELINE/02_PCG_RUNTIME_STATE_ADAPTER.md)
+1. **ติดตั้ง C++ Header**: นำ [FC_PCG_Types.h](00_CORE/FC_PCG_Types.h) ไปใส่ในโฟลเดอร์ `Source/<Project>/Public/PCG/` ในโปรเจกต์ Unreal Engine ของคุณ
+2. **Import Data Tables**: ก๊อบปี้โค้ด JSON จาก [01_DATA_TABLE_DISTRICT_ZONING.md](00_CORE/DATA_TABLES/01_DATA_TABLE_DISTRICT_ZONING.md), [02_DATA_TABLE_ASSET_ARCHETYPES.md](00_CORE/DATA_TABLES/02_DATA_TABLE_ASSET_ARCHETYPES.md), และ [03_DATA_TABLE_SOCKET_MATRIX.md](00_CORE/DATA_TABLES/03_DATA_TABLE_SOCKET_MATRIX.md) เข้า Content Browser
+3. **ศึกษาการคำนวณพิกัดกลีบดอกไม้**: อ่านสูตรคณิตศาสตร์และโค้ด VEX/Blueprint ได้ที่ [02_RADIAL_GRID_MATH.md](01_WORLD/02_RADIAL_GRID_MATH.md)
+4. **ประกอบ PCG Graph ใน UE5**: ทำตามขั้นตอนทีละโหนดใน [04_UE5_PCG_GRAPH_SETUP_GUIDE.md](04_PCG_PIPELINE/04_UE5_PCG_GRAPH_SETUP_GUIDE.md)
+5. **ต่อระบบโครงข่ายเกมเพลย์ & State Adapter**: ดูการวางระบบ Maglev, ท่อ O2, และระบบตัดตอนน้ำท่วมได้ที่ [03_TRANSIT_AND_RESOURCE_GRAPH.md](04_PCG_PIPELINE/03_TRANSIT_AND_RESOURCE_GRAPH.md) และ [02_PCG_RUNTIME_STATE_ADAPTER.md](04_PCG_PIPELINE/02_PCG_RUNTIME_STATE_ADAPTER.md)

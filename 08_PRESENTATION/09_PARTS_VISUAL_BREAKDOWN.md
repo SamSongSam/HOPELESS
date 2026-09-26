@@ -115,7 +115,7 @@
 
 ![SYS_07: Outer Petal Floating Dock](parts/07_SYS_DEEP_SEA_BERTH.jpg)
 
-| หัวข้อ (Attribute) | ข้อมูลจำเพาะตามต้นแบบ Canon ([LOTUS_ACADEMY_CITY.jpg](file:///d:/2/OWN/HOPELESS/LOTUS_ACADEMY_CITY.jpg)) |
+| หัวข้อ (Attribute) | ข้อมูลจำเพาะตามต้นแบบ Canon ([LOTUS_ACADEMY_CITY.jpg](../LOTUS_ACADEMY_CITY.jpg)) |
 | :--- | :--- |
 | **ต้นแบบอ้างอิงหลัก (Canon Reference)** | สอดคล้องกับภาพต้นแบบสถาปัตยกรรมหลัก **LOTUS_ACADEMY_CITY.jpg** 100% |
 | **ตำแหน่งและขนาด (Position & Scale)** | เป็น **ท่าเรือทุ่นลอยขนาดเล็ก (Compact Floating Jetty)** ลอยตัวอิสระในน้ำ **"รอบนอกกลีบ"** ไม่ใช่ท่าเรือคอนกรีตขนาดใหญ่เทอะทะ |

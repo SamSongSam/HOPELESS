@@ -104,7 +104,8 @@ def build_houdini_istrorigan():
 
     # Resolve project output parts directory
     # Default relative to project root or absolute
-    base_dir = "d:/2/OWN/HOPELESS/output/parts"
+    base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "output", "parts")
+    base_dir = os.path.abspath(base_dir).replace("\\", "/")
 
     parts_def = [
         # ROW 0: UPPER CITADEL & DEFENSE
@@ -342,7 +343,7 @@ def build_houdini_istrorigan():
         "  [07] Outer Floating Pontoon Jetties (No Crowding)\n"
         "  [08] 12 Submerged Hydraulic Ballast Rings (-900m)\n"
         "  [09] Abyssal Doomsday Vault & Bedrock Claws (-1,000m)\n\n"
-        "* Geometry Source: d:/2/OWN/HOPELESS/output/parts/\n"
+        "* Geometry Source: <project>/output/parts/\n"
         "===================================================="
     )
     make_sticky(master, "note_overview", note_overview,

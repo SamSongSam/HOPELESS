@@ -6,7 +6,7 @@
  Run:
    hython scripts/run_houdini_istrorigan.py [save]
  Or inside Houdini Python Source Editor:
-   exec(open("d:/2/OWN/HOPELESS/scripts/run_houdini_istrorigan.py").read())
+   exec(open(r"<project>/scripts/run_houdini_istrorigan.py").read())
 ================================================================================
 """
 

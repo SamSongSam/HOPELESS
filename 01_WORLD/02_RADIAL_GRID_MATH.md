@@ -1,6 +1,6 @@
 # 02_RADIAL_GRID_MATH - Lotus Flower Morphology & Radial Mathematics
 
-> **Reference Script:** ถอดรหัสอัลกอริทึมจาก [`lotus_flower_regioned.py`](file:///d:/2/OWN/HOPELESS/lotus_flower_regioned.py) สำหรับจำลองกายวิภาค **ดอกบัวหลวง (Sacred Lotus - Nelumbo nucifera)** ให้เป็นเมืองขนาดมหึมา (Megastructure)
+> **Reference Script:** ถอดรหัสอัลกอริทึมจาก [`lotus_flower_regioned.py`](../lotus_flower_regioned.py) สำหรับจำลองกายวิภาค **ดอกบัวหลวง (Sacred Lotus - Nelumbo nucifera)** ให้เป็นเมืองขนาดมหึมา (Megastructure)
 
 ---
 

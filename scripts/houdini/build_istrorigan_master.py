@@ -58,15 +58,19 @@ import part15_subcouncil_halls
 import pcg_stages
 
 CREF = "../"
+# project root = two levels above scripts/houdini (portable, no absolute paths)
+PROJECT_ROOT = os.path.abspath(os.path.join(PACKAGE_DIR, "..", "..")).replace("\\", "/")
+OUTPUT_DIR = PROJECT_ROOT + "/output"
 # endregion
 
 
 # region DATA-DRIVEN URBAN LAYERS PYTHON CODE
 PYTHON_BUILDINGS_CODE = r'''
 import csv, os, hou
+ROOT = hou.pwd().parent().evalParm("blueprintRoot")   # project root ($HIP/..)
 geo = hou.pwd().geometry()
 geo.clear()
-csv_path = "d:/2/OWN/HOPELESS/output/istrorigan_building_assemblies.csv"
+csv_path = ROOT + "/output/istrorigan_building_assemblies.csv"
 if os.path.exists(csv_path):
     geo.addAttrib(hou.attribType.Point, "Cd", (0.7, 0.7, 0.7))
     geo.addAttrib(hou.attribType.Prim, "Cd", (0.7, 0.7, 0.7))
@@ -128,6 +132,7 @@ if os.path.exists(csv_path):
 
 PYTHON_TRANSIT_CODE = r'''
 import csv, os, hou
+ROOT = hou.pwd().parent().evalParm("blueprintRoot")   # project root ($HIP/..)
 geo = hou.pwd().geometry()
 geo.clear()
 geo.addAttrib(hou.attribType.Prim, "layer", "")
@@ -135,8 +140,8 @@ geo.addAttrib(hou.attribType.Prim, "edge_type", "")
 geo.addAttrib(hou.attribType.Prim, "capacity", 0.0)
 geo.addAttrib(hou.attribType.Prim, "Cd", (1.0, 0.8, 0.1))
 
-edges_csv = "d:/2/OWN/HOPELESS/output/istrorigan_graph_edges.csv"
-nodes_csv = "d:/2/OWN/HOPELESS/output/istrorigan_graph_nodes.csv"
+edges_csv = ROOT + "/output/istrorigan_graph_edges.csv"
+nodes_csv = ROOT + "/output/istrorigan_graph_nodes.csv"
 if os.path.exists(nodes_csv) and os.path.exists(edges_csv):
     node_pos = {}
     with open(nodes_csv, "r", encoding="utf-8") as f:
@@ -168,6 +173,7 @@ if os.path.exists(nodes_csv) and os.path.exists(edges_csv):
 
 PYTHON_SCATTER_CODE = r'''
 import csv, os, hou
+ROOT = hou.pwd().parent().evalParm("blueprintRoot")   # project root ($HIP/..)
 geo = hou.pwd().geometry()
 geo.clear()
 geo.addAttrib(hou.attribType.Point, "instance", "")
@@ -190,7 +196,7 @@ cd_map = {
     "ZONE_HARBOR_BERTH": (0.6, 0.65, 0.7),
 }
 
-props_csv = "d:/2/OWN/HOPELESS/output/istrorigan_scatter_props.csv"
+props_csv = ROOT + "/output/istrorigan_scatter_props.csv"
 if os.path.exists(props_csv):
     with open(props_csv, "r", encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -207,6 +213,7 @@ if os.path.exists(props_csv):
 
 PYTHON_LATTICE_CODE = r'''
 import csv, os, hou
+ROOT = hou.pwd().parent().evalParm("blueprintRoot")   # project root ($HIP/..)
 geo = hou.pwd().geometry()
 geo.clear()
 geo.addAttrib(hou.attribType.Point, "Cd", (1.0, 1.0, 1.0))
@@ -229,7 +236,7 @@ cd_map = {
     "ZONE_HARBOR_BERTH": (0.6, 0.65, 0.7),
 }
 
-lattice_csv = "d:/2/OWN/HOPELESS/output/istrorigan_lattice_meters.csv"
+lattice_csv = ROOT + "/output/istrorigan_lattice_meters.csv"
 if os.path.exists(lattice_csv):
     with open(lattice_csv, "r", encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -360,6 +367,8 @@ def build_master_istrorigan_system(save_hip=False, rebuild=False):
 
     sub.setParmTemplateGroup(ptg)
     part03_academic_petals.setup_expressions(sub)
+    if hou.hipFile.isNewFile() and not save_hip:
+        sub.parm("blueprintRoot").set(PROJECT_ROOT)   # $HIP/.. once saved in output/
     # endregion
 
     # region 2. 14 MODULAR SUBSYSTEM INSTANTIATION
@@ -382,20 +391,20 @@ def build_master_istrorigan_system(save_hip=False, rebuild=False):
 
     # 14 Canonical High-Res OBJ Meshes with Procedural Fallback Switches
     subsystem_objs = [
-        ("file_spire", "d:/2/OWN/HOPELESS/output/parts/01_SYS_APEX_SPIRE.obj", out_spire, 0, nodes_spire),
-        ("file_barrier", "d:/2/OWN/HOPELESS/output/parts/02_SYS_HEX_BARRIER.obj", out_barrier, 2, nodes_barrier),
-        ("file_petals", "d:/2/OWN/HOPELESS/output/parts/03_SYS_ACADEMIC_PETALS_8X.obj", out_petals, 4, nodes_petals),
-        ("file_domes", "d:/2/OWN/HOPELESS/output/parts/04_SYS_BIO_DOMES.obj", out_domes, 6, nodes_domes),
-        ("file_stamens", "d:/2/OWN/HOPELESS/output/parts/05_SYS_STAMEN_PYLONS.obj", out_stamens, 8, nodes_stamens),
-        ("file_bridges", "d:/2/OWN/HOPELESS/output/parts/06_SYS_CANAL_BRIDGES.obj", out_bridges, 10, nodes_bridges),
-        ("file_docks", "d:/2/OWN/HOPELESS/output/parts/07_SYS_OUTER_FLOATING_DOCK.obj", out_docks, 12, nodes_docks),
-        ("file_submerged", "d:/2/OWN/HOPELESS/output/parts/08_SYS_STEM_RINGS.obj", out_submerged, 14, nodes_submerged),
-        ("file_vault", "d:/2/OWN/HOPELESS/output/parts/09_SYS_SEABED_VAULT.obj", out_vault, 16, nodes_vault),
-        ("file_collar", "d:/2/OWN/HOPELESS/output/parts/11_SYS_CORE_STEM_COLLAR.obj", out_collar, 18, nodes_collar),
-        ("file_hydraulics", "d:/2/OWN/HOPELESS/output/parts/12_SYS_INTER_RING_HYDRAULICS.obj", out_hydraulics, 20, nodes_hydraulics),
-        ("file_elevator", "d:/2/OWN/HOPELESS/output/parts/13_SYS_DEEPSEA_ELEVATOR_CORE.obj", out_elevator, 22, nodes_elevator),
-        ("file_bulkhead", "d:/2/OWN/HOPELESS/output/parts/14_SYS_EMERGENCY_BULKHEAD_GATES.obj", out_bulkhead, 24, nodes_bulkhead),
-        ("file_subcouncil", "d:/2/OWN/HOPELESS/output/parts/15_SYS_SUBCOUNCIL_HALLS_8X.obj", out_subcouncil, 26, nodes_subcouncil),
+        ("file_spire", "`chs(\"../blueprintRoot\")`/output/parts/01_SYS_APEX_SPIRE.obj", out_spire, 0, nodes_spire),
+        ("file_barrier", "`chs(\"../blueprintRoot\")`/output/parts/02_SYS_HEX_BARRIER.obj", out_barrier, 2, nodes_barrier),
+        ("file_petals", "`chs(\"../blueprintRoot\")`/output/parts/03_SYS_ACADEMIC_PETALS_8X.obj", out_petals, 4, nodes_petals),
+        ("file_domes", "`chs(\"../blueprintRoot\")`/output/parts/04_SYS_BIO_DOMES.obj", out_domes, 6, nodes_domes),
+        ("file_stamens", "`chs(\"../blueprintRoot\")`/output/parts/05_SYS_STAMEN_PYLONS.obj", out_stamens, 8, nodes_stamens),
+        ("file_bridges", "`chs(\"../blueprintRoot\")`/output/parts/06_SYS_CANAL_BRIDGES.obj", out_bridges, 10, nodes_bridges),
+        ("file_docks", "`chs(\"../blueprintRoot\")`/output/parts/07_SYS_OUTER_FLOATING_DOCK.obj", out_docks, 12, nodes_docks),
+        ("file_submerged", "`chs(\"../blueprintRoot\")`/output/parts/08_SYS_STEM_RINGS.obj", out_submerged, 14, nodes_submerged),
+        ("file_vault", "`chs(\"../blueprintRoot\")`/output/parts/09_SYS_SEABED_VAULT.obj", out_vault, 16, nodes_vault),
+        ("file_collar", "`chs(\"../blueprintRoot\")`/output/parts/11_SYS_CORE_STEM_COLLAR.obj", out_collar, 18, nodes_collar),
+        ("file_hydraulics", "`chs(\"../blueprintRoot\")`/output/parts/12_SYS_INTER_RING_HYDRAULICS.obj", out_hydraulics, 20, nodes_hydraulics),
+        ("file_elevator", "`chs(\"../blueprintRoot\")`/output/parts/13_SYS_DEEPSEA_ELEVATOR_CORE.obj", out_elevator, 22, nodes_elevator),
+        ("file_bulkhead", "`chs(\"../blueprintRoot\")`/output/parts/14_SYS_EMERGENCY_BULKHEAD_GATES.obj", out_bulkhead, 24, nodes_bulkhead),
+        ("file_subcouncil", "`chs(\"../blueprintRoot\")`/output/parts/15_SYS_SUBCOUNCIL_HALLS_8X.obj", out_subcouncil, 26, nodes_subcouncil),
     ]
 
     final_subsystem_outs = []
@@ -567,12 +576,12 @@ def build_master_istrorigan_system(save_hip=False, rebuild=False):
     # region 6. DISK EXPORT ROPS & NETWORK BOXES
     rop_fbx = mk(sub, "rop_fbx", "EXPORT_fbx", 13, 18, "Save to Disk -> FBX")
     rop_fbx.setInput(0, OUT_MAIN)
-    setp(rop_fbx, "sopoutput", "d:/2/OWN/HOPELESS/output/istrorigan_city.fbx")
+    setp(rop_fbx, "sopoutput", "`chs(\"../blueprintRoot\")`/output/istrorigan_city.fbx")
     ENGINE_EXTRA = []
     try:
         rop_gltf = mk(sub, "rop_gltf", "EXPORT_gltf", 15, 18, "Save to Disk -> glTF / GLB")
         rop_gltf.setInput(0, OUT_MAIN)
-        setp(rop_gltf, "file", "d:/2/OWN/HOPELESS/output/istrorigan_city.glb")
+        setp(rop_gltf, "file", "`chs(\"../blueprintRoot\")`/output/istrorigan_city.glb")
         ENGINE_EXTRA.append(rop_gltf)
     except Exception:
         pass
@@ -737,7 +746,7 @@ def build_master_istrorigan_system(save_hip=False, rebuild=False):
                 hou.licenseCategoryType.Indie: "hdalc",
                 hou.licenseCategoryType.Apprentice: "hdanc"}.get(
                     hou.licenseCategoryType(), "hda")
-        hda_path = "d:/2/OWN/HOPELESS/output/istrorigan_city.%s" % _ext
+        hda_path = OUTPUT_DIR + "/istrorigan_city.%s" % _ext
         asset = sub.createDigitalAsset(
             name="istrorigan_city",
             hda_file_name=hda_path,
@@ -765,7 +774,7 @@ def build_master_istrorigan_system(save_hip=False, rebuild=False):
     print("[+] DONE -> %s" % asset.path())
 
     if save_hip:
-        hip_path = "d:/2/OWN/HOPELESS/output/istrorigan_city.hip"
+        hip_path = OUTPUT_DIR + "/istrorigan_city.hip"
         hou.hipFile.save(hip_path)
         print("[+] Saved HIP file -> %s" % hip_path)
 

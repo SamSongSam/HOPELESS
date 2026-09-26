@@ -29,10 +29,10 @@ CompileFlags:
     - -DUPROPERTY(...)=
     - -DUENUM(...)=
     - -DUMETA(...)=
-    - -ID:/2/OWN/HOPELESS/Intermediate/Generated
-    - -ID:/2/OWN/HOPELESS/Source/FlowerCityPCG/Public
-    - -ID:/2/OWN/HOPELESS/Source/FlowerCityPCG/Private
-    - -ID:/2/OWN/HOPELESS/00_CORE
+    - -ID:/GIT/HOPELESS/Intermediate/Generated
+    - -ID:/GIT/HOPELESS/Source/FlowerCityPCG/Public
+    - -ID:/GIT/HOPELESS/Source/FlowerCityPCG/Private
+    - -ID:/GIT/HOPELESS/00_CORE
 
 Diagnostics:
   UnusedIncludes: None

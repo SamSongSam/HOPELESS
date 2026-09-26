@@ -1,7 +1,9 @@
 import hou
 import sys
+import os
 
-hou.hipFile.load("d:/2/OWN/HOPELESS/output/istrorigan_city.hip")
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+hou.hipFile.load(os.path.join(PROJECT_ROOT, "output", "istrorigan_city.hip").replace("\\", "/"))
 sub = hou.node("/obj/istrorigan_city/istrorigan")
 
 all_nodes = sub.children()
