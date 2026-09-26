@@ -1,0 +1,38 @@
+CompileFlags:
+  Add:
+    - -std=c++20
+    - -ferror-limit=1000
+    - -fms-extensions
+    - -fms-compatibility
+    - -fdelayed-template-parsing
+    - -Wno-everything
+    - -Wno-unknown-attributes
+    - -Wno-macro-redefined
+    - -Wno-inconsistent-missing-override
+    - -D__clang__
+    - -DUBT_COMPILED=1
+    - -DWITH_ENGINE=1
+    - -DWITH_EDITOR=1
+    - -DUNICODE
+    - -D_UNICODE
+    - -DPLATFORM_WINDOWS=1
+    - -DUE_BUILD_DEVELOPMENT=1
+    - -DFLOWERCITYPCG_API=
+    - -DCORE_API=
+    - -DCOREUOBJECT_API=
+    - -DENGINE_API=
+    - -DPCG_API=
+    - -DGENERATED_BODY(...)=
+    - -DUCLASS(...)=
+    - -DUSTRUCT(...)=
+    - -DUFUNCTION(...)=
+    - -DUPROPERTY(...)=
+    - -DUENUM(...)=
+    - -DUMETA(...)=
+    - -ID:/2/OWN/HOPELESS/Intermediate/Generated
+    - -ID:/2/OWN/HOPELESS/Source/FlowerCityPCG/Public
+    - -ID:/2/OWN/HOPELESS/Source/FlowerCityPCG/Private
+    - -ID:/2/OWN/HOPELESS/00_CORE
+
+Diagnostics:
+  UnusedIncludes: None

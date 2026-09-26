@@ -1,0 +1,62 @@
+// ==============================================================================
+// ISTRORIGAN HOUDINI VEX: PETAL POLAR LATTICE & CUPPED HULL
+// Use inside SOP Attribute Wrangle (Points)
+// ==============================================================================
+
+int petal_count = chi("petal_count"); // default 8
+float base_r = chf("base_inner_radius"); // 150.0m
+float petal_len = chf("petal_length"); // 950.0m
+float petal_max_w = chf("petal_max_width"); // 420.0m
+float min_clearance = chf("min_waterway_clearance"); // 45.0m
+float pitch_deg = chf("petal_pitch_deg"); // 2.5 deg (Solstice) to 45.0 deg (Submerge)
+
+// Normalized inputs: @u (0.0 to 1.0 along length), @v (-1.0 to 1.0 across width)
+float u = clamp(f@u, 0.0, 1.0);
+float v = clamp(f@v, -1.0, 1.0);
+int petal_id = i@petal_id;
+
+// 1. Azimuth angle of this petal
+float az_rad = radians(petal_id * (360.0 / float(petal_count)));
+
+// 2. Radial distance along petal spine
+float r_dist = base_r + (u * petal_len);
+
+// 3. Waterway Clearance Constraint: Width must NOT exceed sector width - 45m
+float half_slot_rad = M_PI / float(petal_count);
+float max_permitted_half_w = (r_dist * sin(half_slot_rad)) - (min_clearance * 0.5);
+max_permitted_half_w = max(max_permitted_half_w, 5.0);
+
+// 4. Botanical Lotus Petal Width Profile (power 0.52 sine curve)
+float vs = pow(u, 0.52);
+float profile_curve = pow(max(0.0, sin(M_PI * vs)), 1.20);
+float nominal_half_w = (petal_max_w * 0.5) * profile_curve;
+float half_w = min(nominal_half_w, max_permitted_half_w);
+
+// 5. Elevation Z: Central Keel + Cupped Dish Edges
+float arch = sin(M_PI * u);
+float keel_z = 22.0 * (1.0 - abs(v)) * pow(arch, 0.65);
+float cup_z = -35.0 * (v * v) * arch;
+float deck_z = keel_z + cup_z;
+
+// Level outer tip at sea level (Z = 0) for outer docks
+if (u > 0.70) {
+    float t = (u - 0.70) / 0.30;
+    float blend = t * t * (3.0 - 2.0 * t);
+    deck_z *= (1.0 - blend);
+}
+
+// 6. Pitch Articulation (Rotation around base hinge)
+vector local_p = set(r_dist, v * half_w, deck_z);
+// Apply pitch around Y-axis at base hinge
+float p_rad = radians(pitch_deg);
+float pitched_x = (local_p.x - base_r) * cos(p_rad) - local_p.z * sin(p_rad) + base_r;
+float pitched_z = (local_p.x - base_r) * sin(p_rad) + local_p.z * cos(p_rad);
+
+// 7. World Position rotated to Petal Azimuth
+@P.x = pitched_x * cos(az_rad) - local_p.y * sin(az_rad);
+@P.y = pitched_x * sin(az_rad) + local_p.y * cos(az_rad);
+@P.z = pitched_z;
+
+// Attributes for instancing & shading
+@N = set(0, 0, 1);
+s@zone_tag = (u < 0.25) ? "Faculty_Core" : ((u < 0.75) ? "Academic_Living" : "Outer_Shore");

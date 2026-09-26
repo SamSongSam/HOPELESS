@@ -1,0 +1,87 @@
+// ==============================================================================
+// ISTRORIGAN HOUDINI VEX: STAMEN PYLONS, OUTER DOCKS & SUBMERGED RINGS
+// Snippets for Houdini Point Wrangles
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// SNIPPET 1: 70 GOLDEN STAMEN PYLONS GENERATOR
+// Input: Single point or Line SOP
+// Output: 70 Transformed Anchor Points around Citadel Base (r = 180m to 260m)
+// ------------------------------------------------------------------------------
+/*
+int stamen_count = 70;
+float r_min = 180.0;
+float r_max = 260.0;
+vector apex_target = set(0, 0, 600.0);
+
+for (int i = 0; i < stamen_count; ++i) {
+    float th = 2.0 * M_PI * (float(i) / float(stamen_count));
+    // Alternate 2 concentric rings
+    float r = (i % 2 == 0) ? r_min : r_max;
+    vector pos = set(r * cos(th), r * sin(th), 0.0);
+
+    int pt = addpoint(0, pos);
+    setpointattrib(0, "pylon_id", pt, i);
+    setpointattrib(0, "height", pt, 45.0);
+
+    // Vector pointing to Apex Spire for energy plasma arc targeting
+    vector aim_apex = normalize(apex_target - pos);
+    setpointattrib(0, "aim_apex", pt, aim_apex);
+
+    // Up vector
+    setpointattrib(0, "N", pt, set(cos(th), sin(th), 0.2));
+}
+*/
+
+// ------------------------------------------------------------------------------
+// SNIPPET 2: OUTER FLOATING DOCK JETTY PLACER (Canon LOTUS_ACADEMY_CITY.jpg)
+// Input: Petal Center Spine / Outer Perimeter Points
+// Output: Pontoon Anchors outside each petal hull (Zero Petal Encroachment)
+// ------------------------------------------------------------------------------
+/*
+int petal_count = 8;
+for (int p = 0; p < petal_count; ++p) {
+    float az_deg = float(p) * (360.0 / float(petal_count));
+    float flank_deg = az_deg - 7.5; // Offset to outer flank
+    float rad = radians(flank_deg);
+
+    // 1. Ramp Start (On Petal Base Rim Z = 12m)
+    vector p_ramp_top = set(1000.0 * cos(rad), 1000.0 * sin(rad), 12.0);
+    // 2. Ramp End / Pontoon Start (In Water Z = 0.5m)
+    vector p_water_dock = set(1060.0 * cos(rad), 1060.0 * sin(rad), 0.5);
+    // 3. Central Spine
+    vector p_spine = set(1120.0 * cos(rad), 1120.0 * sin(rad), 0.6);
+
+    int pt_ramp = addpoint(0, p_ramp_top);
+    int pt_dock = addpoint(0, p_water_dock);
+    int pt_spine = addpoint(0, p_spine);
+
+    setpointattrib(0, "part_type", pt_dock, "outer_pontoon_jetty");
+    setpointattrib(0, "petal_id", pt_dock, p);
+    setpointattrib(0, "status", pt_dock, "deployable_temporary");
+}
+*/
+
+// ------------------------------------------------------------------------------
+// SNIPPET 3: 12 SUBMERGED TELESCOPIC BALLAST RINGS
+// Output: Concentric Cylinder Anchor Points from -50m to -900m Depth
+// ------------------------------------------------------------------------------
+/*
+int tiers = 12;
+float neck_r = 80.0;
+float seabed_r = 350.0;
+float depth_top = -50.0;
+float depth_bottom = -900.0;
+
+for (int t = 0; t < tiers; ++t) {
+    float tf = float(t) / float(tiers - 1);
+    float z = lerp(depth_top, depth_bottom, tf);
+    float r = lerp(neck_r, seabed_r, tf);
+
+    int ring_pt = addpoint(0, set(0, 0, z));
+    setpointattrib(0, "tier_id", ring_pt, t + 1);
+    setpointattrib(0, "radius", ring_pt, r);
+    setpointattrib(0, "thickness", ring_pt, 35.0);
+    setpointattrib(0, "buoyancy_capacity_kN", ring_pt, 352350.0);
+}
+*/

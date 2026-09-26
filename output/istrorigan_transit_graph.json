@@ -1,0 +1,2142 @@
+{
+  "nodes": [
+    {
+      "node_id": 100,
+      "name": "Core Central Maglev Terminal",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": -1,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1500.0,
+      "capacity": 50000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 101,
+      "name": "Core Geothermal Reactor Bus",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": -1,
+      "x": 0.0,
+      "y": 0.0,
+      "z": -10000.0,
+      "capacity": 100000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 102,
+      "name": "Core Oxygen & Desalination Main",
+      "layer": "Utility_Trunk",
+      "node_type": "O2Terminal",
+      "petal_idx": -1,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 2500.0,
+      "capacity": 80000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 103,
+      "name": "Citadel Sovereign Emergency Bunker",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": -1,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 20000.0,
+      "capacity": 100000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 104,
+      "name": "Petal 1 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 0,
+      "x": 34000.0,
+      "y": 0.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 105,
+      "name": "Petal 1 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 0,
+      "x": 36000.0,
+      "y": 0.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 106,
+      "name": "Petal 1 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 0,
+      "x": 32000.0,
+      "y": 0.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 107,
+      "name": "Petal 1 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 0,
+      "x": 62500.0,
+      "y": 0.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 108,
+      "name": "Petal 1 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 0,
+      "x": 64500.0,
+      "y": 0.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 109,
+      "name": "Petal 1 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 0,
+      "x": 60500.0,
+      "y": 0.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 110,
+      "name": "Petal 1 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 0,
+      "x": 95750.0,
+      "y": 0.0,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 111,
+      "name": "Petal 1 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 0,
+      "x": 97750.0,
+      "y": 0.0,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 112,
+      "name": "Petal 1 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 0,
+      "x": 93750.0,
+      "y": 0.0,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 113,
+      "name": "Petal 2 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 1,
+      "x": 24041.63,
+      "y": 24041.63,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 114,
+      "name": "Petal 2 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 1,
+      "x": 25455.84,
+      "y": 25455.84,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": false
+    },
+    {
+      "node_id": 115,
+      "name": "Petal 2 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 1,
+      "x": 22627.42,
+      "y": 22627.42,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 116,
+      "name": "Petal 2 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 1,
+      "x": 44194.17,
+      "y": 44194.17,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 117,
+      "name": "Petal 2 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 1,
+      "x": 45608.39,
+      "y": 45608.39,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 118,
+      "name": "Petal 2 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 1,
+      "x": 42779.96,
+      "y": 42779.96,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 119,
+      "name": "Petal 2 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 1,
+      "x": 67705.47,
+      "y": 67705.47,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 120,
+      "name": "Petal 2 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 1,
+      "x": 69119.69,
+      "y": 69119.69,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 121,
+      "name": "Petal 2 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 1,
+      "x": 66291.26,
+      "y": 66291.26,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 122,
+      "name": "Petal 3 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 34000.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 123,
+      "name": "Petal 3 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 36000.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 124,
+      "name": "Petal 3 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 32000.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 125,
+      "name": "Petal 3 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 62500.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 126,
+      "name": "Petal 3 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 64500.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 127,
+      "name": "Petal 3 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 60500.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 128,
+      "name": "Petal 3 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 95750.0,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 129,
+      "name": "Petal 3 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 97750.0,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 130,
+      "name": "Petal 3 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 2,
+      "x": 0.0,
+      "y": 93750.0,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 131,
+      "name": "Petal 4 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 3,
+      "x": -24041.63,
+      "y": 24041.63,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 132,
+      "name": "Petal 4 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 3,
+      "x": -25455.84,
+      "y": 25455.84,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 133,
+      "name": "Petal 4 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 3,
+      "x": -22627.42,
+      "y": 22627.42,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 134,
+      "name": "Petal 4 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 3,
+      "x": -44194.17,
+      "y": 44194.17,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 135,
+      "name": "Petal 4 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 3,
+      "x": -45608.39,
+      "y": 45608.39,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 136,
+      "name": "Petal 4 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 3,
+      "x": -42779.96,
+      "y": 42779.96,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 137,
+      "name": "Petal 4 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 3,
+      "x": -67705.47,
+      "y": 67705.47,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 138,
+      "name": "Petal 4 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 3,
+      "x": -69119.69,
+      "y": 69119.69,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 139,
+      "name": "Petal 4 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 3,
+      "x": -66291.26,
+      "y": 66291.26,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 140,
+      "name": "Petal 5 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 4,
+      "x": -34000.0,
+      "y": 0.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 141,
+      "name": "Petal 5 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 4,
+      "x": -36000.0,
+      "y": 0.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 142,
+      "name": "Petal 5 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 4,
+      "x": -32000.0,
+      "y": 0.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 143,
+      "name": "Petal 5 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 4,
+      "x": -62500.0,
+      "y": 0.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 144,
+      "name": "Petal 5 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 4,
+      "x": -64500.0,
+      "y": 0.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 145,
+      "name": "Petal 5 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 4,
+      "x": -60500.0,
+      "y": 0.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 146,
+      "name": "Petal 5 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 4,
+      "x": -95750.0,
+      "y": 0.0,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 147,
+      "name": "Petal 5 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 4,
+      "x": -97750.0,
+      "y": 0.0,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 148,
+      "name": "Petal 5 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 4,
+      "x": -93750.0,
+      "y": 0.0,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 149,
+      "name": "Petal 6 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 5,
+      "x": -24041.63,
+      "y": -24041.63,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 150,
+      "name": "Petal 6 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 5,
+      "x": -25455.84,
+      "y": -25455.84,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 151,
+      "name": "Petal 6 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 5,
+      "x": -22627.42,
+      "y": -22627.42,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 152,
+      "name": "Petal 6 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 5,
+      "x": -44194.17,
+      "y": -44194.17,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 153,
+      "name": "Petal 6 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 5,
+      "x": -45608.39,
+      "y": -45608.39,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 154,
+      "name": "Petal 6 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 5,
+      "x": -42779.96,
+      "y": -42779.96,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 155,
+      "name": "Petal 6 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 5,
+      "x": -67705.47,
+      "y": -67705.47,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 156,
+      "name": "Petal 6 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 5,
+      "x": -69119.69,
+      "y": -69119.69,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 157,
+      "name": "Petal 6 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 5,
+      "x": -66291.26,
+      "y": -66291.26,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 158,
+      "name": "Petal 7 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -34000.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 159,
+      "name": "Petal 7 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -36000.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 160,
+      "name": "Petal 7 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -32000.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 161,
+      "name": "Petal 7 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -62500.0,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 162,
+      "name": "Petal 7 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -64500.0,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 163,
+      "name": "Petal 7 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -60500.0,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 164,
+      "name": "Petal 7 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -95750.0,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 165,
+      "name": "Petal 7 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -97750.0,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 166,
+      "name": "Petal 7 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 6,
+      "x": -0.0,
+      "y": -93750.0,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 167,
+      "name": "Petal 8 Maglev Stn (u=0.2)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 7,
+      "x": 24041.63,
+      "y": -24041.63,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 168,
+      "name": "Petal 8 Power Bus (u=0.2)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 7,
+      "x": 25455.84,
+      "y": -25455.84,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 169,
+      "name": "Petal 8 Evac Shelter (u=0.2)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 7,
+      "x": 22627.42,
+      "y": -22627.42,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 170,
+      "name": "Petal 8 Maglev Stn (u=0.5)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 7,
+      "x": 44194.17,
+      "y": -44194.17,
+      "z": 2200.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 171,
+      "name": "Petal 8 Power Bus (u=0.5)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 7,
+      "x": 45608.39,
+      "y": -45608.39,
+      "z": 1400.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 172,
+      "name": "Petal 8 Evac Shelter (u=0.5)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 7,
+      "x": 42779.96,
+      "y": -42779.96,
+      "z": 2700.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 173,
+      "name": "Petal 8 Maglev Stn (u=0.85)",
+      "layer": "Transit_Maglev",
+      "node_type": "Station",
+      "petal_idx": 7,
+      "x": 67705.47,
+      "y": -67705.47,
+      "z": 1000.0,
+      "capacity": 5000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 174,
+      "name": "Petal 8 Power Bus (u=0.85)",
+      "layer": "Utility_Trunk",
+      "node_type": "PowerSubstation",
+      "petal_idx": 7,
+      "x": 69119.69,
+      "y": -69119.69,
+      "z": 200.0,
+      "capacity": 12000.0,
+      "is_operational": true
+    },
+    {
+      "node_id": 175,
+      "name": "Petal 8 Evac Shelter (u=0.85)",
+      "layer": "Pedestrian_Evac",
+      "node_type": "EvacBunker",
+      "petal_idx": 7,
+      "x": 66291.26,
+      "y": -66291.26,
+      "z": 1500.0,
+      "capacity": 8000.0,
+      "is_operational": true
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": 1000,
+      "start_node": 100,
+      "end_node": 104,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1001,
+      "start_node": 104,
+      "end_node": 107,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1002,
+      "start_node": 107,
+      "end_node": 110,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1003,
+      "start_node": 101,
+      "end_node": 105,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1004,
+      "start_node": 105,
+      "end_node": 108,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1005,
+      "start_node": 108,
+      "end_node": 111,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1006,
+      "start_node": 112,
+      "end_node": 109,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1007,
+      "start_node": 109,
+      "end_node": 106,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1008,
+      "start_node": 106,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1009,
+      "start_node": 104,
+      "end_node": 106,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1010,
+      "start_node": 105,
+      "end_node": 104,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1011,
+      "start_node": 107,
+      "end_node": 109,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1012,
+      "start_node": 108,
+      "end_node": 107,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1013,
+      "start_node": 110,
+      "end_node": 112,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1014,
+      "start_node": 111,
+      "end_node": 110,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1015,
+      "start_node": 100,
+      "end_node": 113,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1016,
+      "start_node": 113,
+      "end_node": 116,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1017,
+      "start_node": 116,
+      "end_node": 119,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1018,
+      "start_node": 101,
+      "end_node": 114,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": true
+    },
+    {
+      "edge_id": 1019,
+      "start_node": 114,
+      "end_node": 117,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": true
+    },
+    {
+      "edge_id": 1020,
+      "start_node": 117,
+      "end_node": 120,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1021,
+      "start_node": 121,
+      "end_node": 118,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1022,
+      "start_node": 118,
+      "end_node": 115,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1023,
+      "start_node": 115,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1024,
+      "start_node": 113,
+      "end_node": 115,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1025,
+      "start_node": 114,
+      "end_node": 113,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": true
+    },
+    {
+      "edge_id": 1026,
+      "start_node": 116,
+      "end_node": 118,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1027,
+      "start_node": 117,
+      "end_node": 116,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1028,
+      "start_node": 119,
+      "end_node": 121,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1029,
+      "start_node": 120,
+      "end_node": 119,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1030,
+      "start_node": 100,
+      "end_node": 122,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1031,
+      "start_node": 122,
+      "end_node": 125,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1032,
+      "start_node": 125,
+      "end_node": 128,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1033,
+      "start_node": 101,
+      "end_node": 123,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1034,
+      "start_node": 123,
+      "end_node": 126,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1035,
+      "start_node": 126,
+      "end_node": 129,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1036,
+      "start_node": 130,
+      "end_node": 127,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1037,
+      "start_node": 127,
+      "end_node": 124,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1038,
+      "start_node": 124,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1039,
+      "start_node": 122,
+      "end_node": 124,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1040,
+      "start_node": 123,
+      "end_node": 122,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1041,
+      "start_node": 125,
+      "end_node": 127,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1042,
+      "start_node": 126,
+      "end_node": 125,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1043,
+      "start_node": 128,
+      "end_node": 130,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1044,
+      "start_node": 129,
+      "end_node": 128,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1045,
+      "start_node": 100,
+      "end_node": 131,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1046,
+      "start_node": 131,
+      "end_node": 134,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1047,
+      "start_node": 134,
+      "end_node": 137,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1048,
+      "start_node": 101,
+      "end_node": 132,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1049,
+      "start_node": 132,
+      "end_node": 135,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1050,
+      "start_node": 135,
+      "end_node": 138,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1051,
+      "start_node": 139,
+      "end_node": 136,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1052,
+      "start_node": 136,
+      "end_node": 133,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1053,
+      "start_node": 133,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1054,
+      "start_node": 131,
+      "end_node": 133,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1055,
+      "start_node": 132,
+      "end_node": 131,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1056,
+      "start_node": 134,
+      "end_node": 136,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1057,
+      "start_node": 135,
+      "end_node": 134,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1058,
+      "start_node": 137,
+      "end_node": 139,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1059,
+      "start_node": 138,
+      "end_node": 137,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1060,
+      "start_node": 100,
+      "end_node": 140,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1061,
+      "start_node": 140,
+      "end_node": 143,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1062,
+      "start_node": 143,
+      "end_node": 146,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1063,
+      "start_node": 101,
+      "end_node": 141,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1064,
+      "start_node": 141,
+      "end_node": 144,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1065,
+      "start_node": 144,
+      "end_node": 147,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1066,
+      "start_node": 148,
+      "end_node": 145,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1067,
+      "start_node": 145,
+      "end_node": 142,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1068,
+      "start_node": 142,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1069,
+      "start_node": 140,
+      "end_node": 142,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1070,
+      "start_node": 141,
+      "end_node": 140,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1071,
+      "start_node": 143,
+      "end_node": 145,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1072,
+      "start_node": 144,
+      "end_node": 143,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1073,
+      "start_node": 146,
+      "end_node": 148,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1074,
+      "start_node": 147,
+      "end_node": 146,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1075,
+      "start_node": 100,
+      "end_node": 149,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1076,
+      "start_node": 149,
+      "end_node": 152,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1077,
+      "start_node": 152,
+      "end_node": 155,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1078,
+      "start_node": 101,
+      "end_node": 150,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1079,
+      "start_node": 150,
+      "end_node": 153,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1080,
+      "start_node": 153,
+      "end_node": 156,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1081,
+      "start_node": 157,
+      "end_node": 154,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1082,
+      "start_node": 154,
+      "end_node": 151,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1083,
+      "start_node": 151,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1084,
+      "start_node": 149,
+      "end_node": 151,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1085,
+      "start_node": 150,
+      "end_node": 149,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1086,
+      "start_node": 152,
+      "end_node": 154,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1087,
+      "start_node": 153,
+      "end_node": 152,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1088,
+      "start_node": 155,
+      "end_node": 157,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1089,
+      "start_node": 156,
+      "end_node": 155,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1090,
+      "start_node": 100,
+      "end_node": 158,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1091,
+      "start_node": 158,
+      "end_node": 161,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1092,
+      "start_node": 161,
+      "end_node": 164,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1093,
+      "start_node": 101,
+      "end_node": 159,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1094,
+      "start_node": 159,
+      "end_node": 162,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1095,
+      "start_node": 162,
+      "end_node": 165,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1096,
+      "start_node": 166,
+      "end_node": 163,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1097,
+      "start_node": 163,
+      "end_node": 160,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1098,
+      "start_node": 160,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1099,
+      "start_node": 158,
+      "end_node": 160,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1100,
+      "start_node": 159,
+      "end_node": 158,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1101,
+      "start_node": 161,
+      "end_node": 163,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1102,
+      "start_node": 162,
+      "end_node": 161,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1103,
+      "start_node": 164,
+      "end_node": 166,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1104,
+      "start_node": 165,
+      "end_node": 164,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1105,
+      "start_node": 100,
+      "end_node": 167,
+      "edge_type": "MaglevRail",
+      "distance_m": 34007.21,
+      "max_throughput": 8000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1106,
+      "start_node": 167,
+      "end_node": 170,
+      "edge_type": "MaglevRail",
+      "distance_m": 28500.0,
+      "max_throughput": 6000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1107,
+      "start_node": 170,
+      "end_node": 173,
+      "edge_type": "MaglevRail",
+      "distance_m": 33271.65,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1108,
+      "start_node": 101,
+      "end_node": 168,
+      "edge_type": "PowerConduit",
+      "distance_m": 37761.89,
+      "max_throughput": 20000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1109,
+      "start_node": 168,
+      "end_node": 171,
+      "edge_type": "PowerConduit",
+      "distance_m": 28500.0,
+      "max_throughput": 15000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1110,
+      "start_node": 171,
+      "end_node": 174,
+      "edge_type": "PowerConduit",
+      "distance_m": 33271.65,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1111,
+      "start_node": 175,
+      "end_node": 172,
+      "edge_type": "SkywalkTube",
+      "distance_m": 33271.65,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1112,
+      "start_node": 172,
+      "end_node": 169,
+      "edge_type": "SkywalkTube",
+      "distance_m": 28500.0,
+      "max_throughput": 4000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1113,
+      "start_node": 169,
+      "end_node": 103,
+      "edge_type": "SkywalkTube",
+      "distance_m": 36377.05,
+      "max_throughput": 10000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1114,
+      "start_node": 167,
+      "end_node": 169,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1115,
+      "start_node": 168,
+      "end_node": 167,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1116,
+      "start_node": 170,
+      "end_node": 172,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1117,
+      "start_node": 171,
+      "end_node": 170,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1118,
+      "start_node": 173,
+      "end_node": 175,
+      "edge_type": "SkywalkTube",
+      "distance_m": 2061.55,
+      "max_throughput": 2000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1119,
+      "start_node": 174,
+      "end_node": 173,
+      "edge_type": "PowerConduit",
+      "distance_m": 2154.07,
+      "max_throughput": 5000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1120,
+      "start_node": 107,
+      "end_node": 116,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1121,
+      "start_node": 110,
+      "end_node": 119,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1122,
+      "start_node": 116,
+      "end_node": 125,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1123,
+      "start_node": 119,
+      "end_node": 128,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1124,
+      "start_node": 125,
+      "end_node": 134,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1125,
+      "start_node": 128,
+      "end_node": 137,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1126,
+      "start_node": 134,
+      "end_node": 143,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1127,
+      "start_node": 137,
+      "end_node": 146,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1128,
+      "start_node": 143,
+      "end_node": 152,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1129,
+      "start_node": 146,
+      "end_node": 155,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1130,
+      "start_node": 152,
+      "end_node": 161,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1131,
+      "start_node": 155,
+      "end_node": 164,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1132,
+      "start_node": 161,
+      "end_node": 170,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1133,
+      "start_node": 164,
+      "end_node": 173,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1134,
+      "start_node": 170,
+      "end_node": 107,
+      "edge_type": "MaglevRail",
+      "distance_m": 47835.43,
+      "max_throughput": 4500.0,
+      "is_sealed": false
+    },
+    {
+      "edge_id": 1135,
+      "start_node": 173,
+      "end_node": 110,
+      "edge_type": "MaglevRail",
+      "distance_m": 73283.88,
+      "max_throughput": 3000.0,
+      "is_sealed": false
+    }
+  ]
+}

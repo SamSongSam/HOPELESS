@@ -1,0 +1,44 @@
+int   count   = chi("%C%stamenCount");
+float H       = chf("%C%stamenHeight");
+float ringR   = chf("%C%stamenRingRadius");
+float pylonR  = chf("%C%pylonFluteRadius");
+vector col    = chv("%C%colStamens");
+
+int segs = 10;
+for (int i = 0; i < count; i++) {
+    float a = float(i) / float(count) * M_PI * 2.0;
+    vector root = set(cos(a) * ringR, 120.0, sin(a) * ringR);
+    vector tip  = root + set(0, H, 0);
+    
+    // Column shaft
+    for (int s = 0; s < segs; s++) {
+        float a1 = float(s) / float(segs) * M_PI * 2.0;
+        float a2 = float(s + 1) / float(segs) * M_PI * 2.0;
+        
+        vector p1 = root + set(cos(a1) * pylonR, 0, sin(a1) * pylonR);
+        vector p2 = root + set(cos(a2) * pylonR, 0, sin(a2) * pylonR);
+        vector p3 = tip  + set(cos(a2) * (pylonR * 0.4), 0, sin(a2) * (pylonR * 0.4));
+        vector p4 = tip  + set(cos(a1) * (pylonR * 0.4), 0, sin(a1) * (pylonR * 0.4));
+        
+        int pt1 = addpoint(0, p1);
+        int pt2 = addpoint(0, p2);
+        int pt3 = addpoint(0, p3);
+        int pt4 = addpoint(0, p4);
+        
+        setpointattrib(0, "Cd", pt1, col, "set");
+        setpointattrib(0, "Cd", pt2, col, "set");
+        setpointattrib(0, "Cd", pt3, col, "set");
+        setpointattrib(0, "Cd", pt4, col, "set");
+        
+        setpointattrib(0, "part_id", pt1, 5, "set");
+        setpointattrib(0, "part_id", pt2, 5, "set");
+        setpointattrib(0, "part_id", pt3, 5, "set");
+        setpointattrib(0, "part_id", pt4, 5, "set");
+        
+        int prim = addprim(0, "poly");
+        addvertex(0, prim, pt1);
+        addvertex(0, prim, pt2);
+        addvertex(0, prim, pt3);
+        addvertex(0, prim, pt4);
+    }
+}

@@ -1,0 +1,126 @@
+// =============================================================================
+// ISTRORIGAN - PART 12: INTER-RING HYDRAULIC EXPANSION DAMPERS & COUPLERS (03.14)
+// =============================================================================
+// Canon: 03.14_RING_CONNECTION & 03.12_STEM_TELESCOPIC_SYSTEM
+// 12-Tier Telescoping Hydraulic Dampers and Articulated Utility Couplers
+// linking adjacent submerged ballast rings.
+// =============================================================================
+
+int   tiers         = 12;
+float neckR         = 80.0;
+float seabedR       = 350.0;
+float maxDepth      = -900.0;
+float extendFrac    = clamp(chf("%C%hydraulicExtension"), 0.0, 1.0);
+float cylRadius     = chf("%C%damperRadius"); // default: 1.8m
+int   strutsPerTier = 8;
+
+vector colCylinder  = set(0.25, 0.28, 0.32);
+vector colPiston    = set(0.78, 0.82, 0.88); // Polished chrome-nickel piston rod
+vector colHydraulic = set(0.10, 0.65, 0.90); // Glowing hydraulic status indicator
+
+for (int t = 0; t < tiers - 1; t++) {
+    float v1 = float(t) / float(tiers);
+    float v2 = float(t + 1) / float(tiers);
+
+    // Radii of ring t and ring t+1
+    float r1 = fit01(pow(v1, 1.4), neckR, seabedR);
+    float r2 = fit01(pow(v2, 1.4), neckR, seabedR);
+
+    // Depths
+    float z1 = v1 * maxDepth;
+    float z2 = v2 * maxDepth;
+
+    // Apply telescopic expansion dynamically based on extendFrac
+    float deltaZ = (z2 - z1) * (0.8 + 0.4 * extendFrac);
+    float pZ1 = z1;
+    float pZ2 = z1 + deltaZ;
+
+    for (int s = 0; s < strutsPerTier; s++) {
+        float baseAng = float(s) / float(strutsPerTier) * M_PI * 2.0;
+
+        // Dual paired hydraulic cylinders per sector (+- 2.5 degrees)
+        for (int pair = -1; pair <= 1; pair += 2) {
+            float ang = baseAng + float(pair) * 0.045;
+            float cosA = cos(ang);
+            float sinA = sin(ang);
+
+            vector ptTop = set(cosA * (r1 * 0.96), pZ1, sinA * (r1 * 0.96));
+            vector ptBot = set(cosA * (r2 * 0.96), pZ2, sinA * (r2 * 0.96));
+
+            vector dir = ptBot - ptTop;
+            float len = length(dir);
+            vector axis = normalize(dir);
+
+            // Compute local perpendicular vectors for cylinder geometry
+            vector refUp = set(0, 1, 0);
+            vector side = normalize(cross(axis, refUp));
+            vector up = normalize(cross(side, axis));
+
+            // Outer cylinder body (upper 55% of strut)
+            float cylLen = len * 0.58;
+            vector cylEnd = ptTop + axis * cylLen;
+
+            // Inner polished piston rod (extends remaining length)
+            vector pistonStart = ptTop + axis * (len * 0.40);
+            vector pistonEnd = ptBot;
+
+            int cSegs = 6;
+            // Build Outer Cylinder
+            for (int cs = 0; cs < cSegs; cs++) {
+                float ca1 = float(cs) / float(cSegs) * M_PI * 2.0;
+                float ca2 = float(cs + 1) / float(cSegs) * M_PI * 2.0;
+
+                vector off1 = side * (cos(ca1) * cylRadius) + up * (sin(ca1) * cylRadius);
+                vector off2 = side * (cos(ca2) * cylRadius) + up * (sin(ca2) * cylRadius);
+
+                int p1 = addpoint(0, ptTop + off1);
+                int p2 = addpoint(0, ptTop + off2);
+                int p3 = addpoint(0, cylEnd + off2);
+                int p4 = addpoint(0, cylEnd + off1);
+
+                setpointattrib(0, "Cd", p1, colCylinder, "set");
+                setpointattrib(0, "Cd", p2, colCylinder, "set");
+                setpointattrib(0, "Cd", p3, colCylinder, "set");
+                setpointattrib(0, "Cd", p4, colCylinder, "set");
+
+                setpointattrib(0, "part_id", p1, 12, "set");
+                setpointattrib(0, "part_id", p2, 12, "set");
+                setpointattrib(0, "part_id", p3, 12, "set");
+                setpointattrib(0, "part_id", p4, 12, "set");
+
+                int prim = addprim(0, "poly");
+                addvertex(0, prim, p1); addvertex(0, prim, p2);
+                addvertex(0, prim, p3); addvertex(0, prim, p4);
+            }
+
+            // Build Inner Piston Rod (narrower radius)
+            float pisRadius = cylRadius * 0.65;
+            for (int cs = 0; cs < cSegs; cs++) {
+                float ca1 = float(cs) / float(cSegs) * M_PI * 2.0;
+                float ca2 = float(cs + 1) / float(cSegs) * M_PI * 2.0;
+
+                vector off1 = side * (cos(ca1) * pisRadius) + up * (sin(ca1) * pisRadius);
+                vector off2 = side * (cos(ca2) * pisRadius) + up * (sin(ca2) * pisRadius);
+
+                int p1 = addpoint(0, pistonStart + off1);
+                int p2 = addpoint(0, pistonStart + off2);
+                int p3 = addpoint(0, pistonEnd + off2);
+                int p4 = addpoint(0, pistonEnd + off1);
+
+                setpointattrib(0, "Cd", p1, colPiston, "set");
+                setpointattrib(0, "Cd", p2, colPiston, "set");
+                setpointattrib(0, "Cd", p3, colPiston, "set");
+                setpointattrib(0, "Cd", p4, colPiston, "set");
+
+                setpointattrib(0, "part_id", p1, 12, "set");
+                setpointattrib(0, "part_id", p2, 12, "set");
+                setpointattrib(0, "part_id", p3, 12, "set");
+                setpointattrib(0, "part_id", p4, 12, "set");
+
+                int prim = addprim(0, "poly");
+                addvertex(0, prim, p1); addvertex(0, prim, p2);
+                addvertex(0, prim, p3); addvertex(0, prim, p4);
+            }
+        }
+    }
+}

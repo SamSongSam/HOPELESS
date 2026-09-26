@@ -1,0 +1,34 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0.0",
+	"FriendlyName": "Flower City PCG (Istrorigan)",
+	"Description": "Procedural Content Generation (PCG) plugin for the Megastructure City of Istrorigan (Year 4205), featuring 8 distinct non-overlapping petals, Council of Ten Citadel, expanding underwater ballast rings, and bi-annual submersion runtime adapters.",
+	"Category": "Procedural",
+	"CreatedBy": "Antigravity Pair Programmer & HopeLess Lead Architect",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "FlowerCityPCG",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "PCG",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayTagsEditor",
+			"Enabled": true
+		}
+	]
+}

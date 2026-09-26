@@ -1,0 +1,153 @@
+int   numPetals = chi("%C%petalCount");
+float domeR     = chf("%C%domeRadius");
+float dist      = chf("%C%domeRadialDist");
+
+vector colGlass  = chv("%C%colBioDome");
+vector colFrame  = set(0.92, 0.94, 0.96); // Polished Titanium Frame
+vector colTree   = set(0.18, 0.68, 0.32); // Internal Lush Botanical Foliage
+vector colCampus = set(0.95, 0.94, 0.92); // White Composite Academic Buildings
+vector colTier   = set(0.86, 0.84, 0.80);
+
+for (int p = 0; p < numPetals; p++) {
+    float petalAngle = float(p) / float(numPetals) * M_PI * 2.0;
+    matrix3 rot = 1;
+    rotate(rot, petalAngle, set(0, 1, 0));
+    
+    // =========================================================================
+    // EVEN PETALS: GRAND BOTANICAL BIO-DOME & CURVED CAMPUS PODS
+    // =========================================================================
+    if (p % 2 == 0) {
+        vector center = set(0.0, 32.0, dist) * rot;
+        
+        // 1. Geodesic Dome Shell (Dual Lattice: Steel Frame + Inset Glass)
+        int u_divs = 20;
+        int v_divs = 10;
+        
+        for (int v = 0; v < v_divs; v++) {
+            float phi1 = float(v) / float(v_divs) * (M_PI * 0.5);
+            float phi2 = float(v + 1) / float(v_divs) * (M_PI * 0.5);
+            
+            float y1 = sin(phi1) * domeR;
+            float y2 = sin(phi2) * domeR;
+            float r1 = cos(phi1) * domeR;
+            float r2 = cos(phi2) * domeR;
+            
+            for (int u = 0; u < u_divs; u++) {
+                float th1 = float(u) / float(u_divs) * M_PI * 2.0;
+                float th2 = float(u + 1) / float(u_divs) * M_PI * 2.0;
+                
+                vector p1 = center + (set(cos(th1) * r1, y1, sin(th1) * r1) * rot);
+                vector p2 = center + (set(cos(th2) * r1, y1, sin(th2) * r1) * rot);
+                vector p3 = center + (set(cos(th2) * r2, y2, sin(th2) * r2) * rot);
+                vector p4 = center + (set(cos(th1) * r2, y2, sin(th1) * r2) * rot);
+                
+                int pt1 = addpoint(0, p1);
+                int pt2 = addpoint(0, p2);
+                int pt3 = addpoint(0, p3);
+                int pt4 = addpoint(0, p4);
+                
+                setpointattrib(0, "Cd", pt1, colGlass, "set");
+                setpointattrib(0, "Cd", pt2, colGlass, "set");
+                setpointattrib(0, "Cd", pt3, colGlass, "set");
+                setpointattrib(0, "Cd", pt4, colGlass, "set");
+                
+                setpointattrib(0, "Alpha", pt1, 0.45, "set");
+                setpointattrib(0, "Alpha", pt2, 0.45, "set");
+                setpointattrib(0, "Alpha", pt3, 0.45, "set");
+                setpointattrib(0, "Alpha", pt4, 0.45, "set");
+                
+                setpointattrib(0, "part_id", pt1, 4, "set");
+                setpointattrib(0, "part_id", pt2, 4, "set");
+                setpointattrib(0, "part_id", pt3, 4, "set");
+                setpointattrib(0, "part_id", pt4, 4, "set");
+                
+                int prim = addprim(0, "poly");
+                addvertex(0, prim, pt1); addvertex(0, prim, pt2); addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+            }
+        }
+        
+        // 2. Internal Lush Botanical Canopy Core (Trees visible inside dome)
+        int canopyDivs = 12;
+        for (int c = 0; c < canopyDivs; c++) {
+            float ca = float(c) / float(canopyDivs) * M_PI * 2.0;
+            float c_rad = domeR * 0.55;
+            vector treePos = center + (set(cos(ca) * c_rad, domeR * 0.22, sin(ca) * c_rad) * rot);
+            int t_pt = addpoint(0, treePos);
+            setpointattrib(0, "Cd", t_pt, colTree, "set");
+            setpointattrib(0, "pscale", t_pt, domeR * 0.28, "set");
+        }
+        
+        // 3. Curved Academic Campus Buildings behind the dome
+        int bldgSegs = 12;
+        for (int b = 0; b < bldgSegs; b++) {
+            float ba1 = lerp(-M_PI * 0.45, M_PI * 0.45, float(b) / float(bldgSegs));
+            float ba2 = lerp(-M_PI * 0.45, M_PI * 0.45, float(b + 1) / float(bldgSegs));
+            
+            float br1 = dist - domeR * 1.55;
+            float br2 = dist - domeR * 1.20;
+            float bh  = 16.0;
+            
+            vector bp1 = set(sin(ba1) * br1, 26.0, cos(ba1) * br1) * rot;
+            vector bp2 = set(sin(ba2) * br1, 26.0, cos(ba2) * br1) * rot;
+            vector bp3 = set(sin(ba2) * br2, 26.0 + bh, cos(ba2) * br2) * rot;
+            vector bp4 = set(sin(ba1) * br2, 26.0 + bh, cos(ba1) * br2) * rot;
+            
+            int bpt1 = addpoint(0, bp1);
+            int bpt2 = addpoint(0, bp2);
+            int bpt3 = addpoint(0, bp3);
+            int bpt4 = addpoint(0, bp4);
+            
+            setpointattrib(0, "Cd", bpt1, colCampus, "set");
+            setpointattrib(0, "Cd", bpt2, colCampus, "set");
+            setpointattrib(0, "Cd", bpt3, colCampus, "set");
+            setpointattrib(0, "Cd", bpt4, colCampus, "set");
+            
+            int bq = addprim(0, "poly");
+            addvertex(0, bq, bpt1); addvertex(0, bq, bpt2); addvertex(0, bq, bpt3); addvertex(0, bq, bpt4);
+        }
+    }
+    // =========================================================================
+    // ODD PETALS: SCULPTURAL OPEN-AIR AMPHITHEATER & FACULTY COMPLEX
+    // =========================================================================
+    else {
+        vector amphCenter = set(0.0, 24.0, dist * 0.72) * rot;
+        int amphTiers = 8;
+        int amphSegs = 24;
+        
+        for (int t = 0; t < amphTiers; t++) {
+            float t_rad1 = 28.0 + float(t) * 11.0;
+            float t_rad2 = 28.0 + float(t + 1) * 11.0;
+            float t_y1   = 24.0 + float(t) * 3.2;
+            float t_y2   = 24.0 + float(t + 1) * 3.2;
+            
+            for (int s = 0; s < amphSegs; s++) {
+                float th1 = float(s) / float(amphSegs) * M_PI;
+                float th2 = float(s + 1) / float(amphSegs) * M_PI;
+                
+                vector p1 = amphCenter + (set(cos(th1) * t_rad1, t_y1, sin(th1) * t_rad1) * rot);
+                vector p2 = amphCenter + (set(cos(th2) * t_rad1, t_y1, sin(th2) * t_rad1) * rot);
+                vector p3 = amphCenter + (set(cos(th2) * t_rad2, t_y2, sin(th2) * t_rad2) * rot);
+                vector p4 = amphCenter + (set(cos(th1) * t_rad2, t_y2, sin(th1) * t_rad2) * rot);
+                
+                int pt1 = addpoint(0, p1);
+                int pt2 = addpoint(0, p2);
+                int pt3 = addpoint(0, p3);
+                int pt4 = addpoint(0, p4);
+                
+                vector tierCol = (t % 2 == 0) ? colTier : colTier * 0.88;
+                setpointattrib(0, "Cd", pt1, tierCol, "set");
+                setpointattrib(0, "Cd", pt2, tierCol, "set");
+                setpointattrib(0, "Cd", pt3, tierCol, "set");
+                setpointattrib(0, "Cd", pt4, tierCol, "set");
+                
+                setpointattrib(0, "part_id", pt1, 4, "set");
+                setpointattrib(0, "part_id", pt2, 4, "set");
+                setpointattrib(0, "part_id", pt3, 4, "set");
+                setpointattrib(0, "part_id", pt4, 4, "set");
+                
+                int prim = addprim(0, "poly");
+                addvertex(0, prim, pt1); addvertex(0, prim, pt2); addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+            }
+        }
+    }
+}

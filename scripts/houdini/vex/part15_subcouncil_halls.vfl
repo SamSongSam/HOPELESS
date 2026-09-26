@@ -1,0 +1,149 @@
+// =============================================================================
+// ISTRORIGAN - PART 15: 8 FACULTY SUB-COUNCIL ASSEMBLY HALLS (03.06 / 03.03)
+// =============================================================================
+// Canon: 03.06_FLOWER_ZONE & 03.03_PETAL_STRUCTURE
+// 8 Civic Assembly Halls & Legislative Amphitheaters located on the 8 academic petals
+// at radial distance R=380m, each with faculty-specific ceremonial crest lighting.
+// =============================================================================
+
+float hallRadius    = chf("%C%subcouncilRadialDist"); // Default: 380.0m
+float podiumR       = chf("%C%subcouncilPodiumR");     // Default: 42.0m
+float canopyH       = chf("%C%subcouncilCanopyH");     // Default: 48.0m
+
+vector facultyColors[] = array(
+    set(0.10, 0.50, 0.90), // 0: Oceanic Sciences
+    set(0.20, 0.85, 0.40), // 1: Biosphere
+    set(0.70, 0.90, 1.00), // 2: Climate Physics
+    set(0.95, 0.60, 0.20), // 3: Megastructural Engineering
+    set(0.60, 0.30, 0.85), // 4: Historical Archives
+    set(0.15, 0.35, 0.60), // 5: Abyssal Energy
+    set(0.95, 0.92, 0.75), // 6: Global Diplomacy
+    set(0.95, 0.40, 0.55)  // 7: Medicine & Genetics
+);
+
+vector colPodium = set(0.85, 0.84, 0.82); // Polished ivory limestone
+vector colRoof   = set(0.92, 0.94, 0.96); // Titanium shell
+vector colGlass  = set(0.15, 0.80, 0.95); // Solar glass
+
+for (int p = 0; p < 8; p++) {
+    float petalAng = float(p) * (M_PI * 0.25);
+    float cosP = cos(petalAng);
+    float sinP = sin(petalAng);
+    vector centerPos = set(cosP * hallRadius, 10.0, sinP * hallRadius);
+
+    vector fCol = facultyColors[p % 8];
+
+    // 1. Circular Stepped Podium (Plaza & Assembly Steps)
+    int segs = 20;
+    int tiers = 4;
+    for (int t = 0; t < tiers; t++) {
+        float rFrac = 1.0 - float(t) * 0.12;
+        float rStep = podiumR * rFrac;
+        float zBottom = float(t) * 2.2;
+        float zTop = float(t + 1) * 2.2;
+
+        for (int s = 0; s < segs; s++) {
+            float a1 = float(s) / float(segs) * M_PI * 2.0;
+            float a2 = float(s + 1) / float(segs) * M_PI * 2.0;
+
+            vector p1 = centerPos + set(cos(a1) * rStep, zBottom, sin(a1) * rStep);
+            vector p2 = centerPos + set(cos(a2) * rStep, zBottom, sin(a2) * rStep);
+            vector p3 = centerPos + set(cos(a2) * rStep, zTop, sin(a2) * rStep);
+            vector p4 = centerPos + set(cos(a1) * rStep, zTop, sin(a1) * rStep);
+
+            int pt1 = addpoint(0, p1); int pt2 = addpoint(0, p2);
+            int pt3 = addpoint(0, p3); int pt4 = addpoint(0, p4);
+
+            setpointattrib(0, "Cd", pt1, colPodium, "set");
+            setpointattrib(0, "Cd", pt2, colPodium, "set");
+            setpointattrib(0, "Cd", pt3, colPodium, "set");
+            setpointattrib(0, "Cd", pt4, colPodium, "set");
+
+            setpointattrib(0, "part_id", pt1, 15, "set");
+            setpointattrib(0, "part_id", pt2, 15, "set");
+            setpointattrib(0, "part_id", pt3, 15, "set");
+            setpointattrib(0, "part_id", pt4, 15, "set");
+
+            int prim = addprim(0, "poly");
+            addvertex(0, prim, pt1); addvertex(0, prim, pt2);
+            addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+        }
+    }
+
+    // 2. Sculptural Cantilever Clamshell Canopy Arch
+    int cRings = 10;
+    int cCols = 12;
+    for (int cr = 0; cr < cRings; cr++) {
+        float u1 = float(cr) / float(cRings);
+        float u2 = float(cr + 1) / float(cRings);
+
+        for (int cc = 0; cc < cCols; cc++) {
+            float v1 = float(cc) / float(cCols) - 0.5;
+            float v2 = float(cc + 1) / float(cCols) - 0.5;
+
+            // Parabolic arch profile oriented outward along petal axis
+            float forward1 = u1 * podiumR * 1.3 - podiumR * 0.4;
+            float forward2 = u2 * podiumR * 1.3 - podiumR * 0.4;
+
+            float width1 = (podiumR * 0.9) * sqrt(clamp(1.0 - u1 * 0.7, 0.01, 1.0));
+            float width2 = (podiumR * 0.9) * sqrt(clamp(1.0 - u2 * 0.7, 0.01, 1.0));
+
+            float sideDist1 = v1 * width1;
+            float sideDist2 = v2 * width1;
+            float sideDist3 = v2 * width2;
+            float sideDist4 = v1 * width2;
+
+            float zArch1 = 8.8 + sin(u1 * M_PI * 0.85) * canopyH - pow(v1 * 2.0, 2.0) * 6.0;
+            float zArch2 = 8.8 + sin(u2 * M_PI * 0.85) * canopyH - pow(v2 * 2.0, 2.0) * 6.0;
+
+            // Rotate into petal orientation
+            vector q1 = centerPos + set(cosP * forward1 - sinP * sideDist1, zArch1, sinP * forward1 + cosP * sideDist1);
+            vector q2 = centerPos + set(cosP * forward1 - sinP * sideDist2, zArch1, sinP * forward1 + cosP * sideDist2);
+            vector q3 = centerPos + set(cosP * forward2 - sinP * sideDist3, zArch2, sinP * forward2 + cosP * sideDist3);
+            vector q4 = centerPos + set(cosP * forward2 - sinP * sideDist4, zArch2, sinP * forward2 + cosP * sideDist4);
+
+            int pt1 = addpoint(0, q1); int pt2 = addpoint(0, q2);
+            int pt3 = addpoint(0, q3); int pt4 = addpoint(0, q4);
+
+            setpointattrib(0, "Cd", pt1, colRoof, "set");
+            setpointattrib(0, "Cd", pt2, colRoof, "set");
+            setpointattrib(0, "Cd", pt3, colRoof, "set");
+            setpointattrib(0, "Cd", pt4, colRoof, "set");
+
+            setpointattrib(0, "part_id", pt1, 15, "set");
+            setpointattrib(0, "part_id", pt2, 15, "set");
+            setpointattrib(0, "part_id", pt3, 15, "set");
+            setpointattrib(0, "part_id", pt4, 15, "set");
+
+            int prim = addprim(0, "poly");
+            addvertex(0, prim, pt1); addvertex(0, prim, pt2);
+            addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+        }
+    }
+
+    // 3. Faculty Ceremonial Crest Beacon (Apex of Hall)
+    vector beaconPos = centerPos + set(cosP * (podiumR * 0.25), canopyH + 12.0, sinP * (podiumR * 0.25));
+    float bRadius = 5.0;
+    int bSegs = 8;
+    for (int bs = 0; bs < bSegs; bs++) {
+        float ba1 = float(bs) / float(bSegs) * M_PI * 2.0;
+        float ba2 = float(bs + 1) / float(bSegs) * M_PI * 2.0;
+
+        vector bp1 = beaconPos + set(cos(ba1) * bRadius, -2.0, sin(ba1) * bRadius);
+        vector bp2 = beaconPos + set(cos(ba2) * bRadius, -2.0, sin(ba2) * bRadius);
+        vector bp3 = beaconPos + set(0.0, 6.0, 0.0);
+
+        int bpt1 = addpoint(0, bp1); int bpt2 = addpoint(0, bp2); int bpt3 = addpoint(0, bp3);
+
+        setpointattrib(0, "Cd", bpt1, fCol, "set");
+        setpointattrib(0, "Cd", bpt2, fCol, "set");
+        setpointattrib(0, "Cd", bpt3, fCol, "set");
+
+        setpointattrib(0, "part_id", bpt1, 15, "set");
+        setpointattrib(0, "part_id", bpt2, 15, "set");
+        setpointattrib(0, "part_id", bpt3, 15, "set");
+
+        int primB = addprim(0, "poly");
+        addvertex(0, primB, bpt1); addvertex(0, primB, bpt2); addvertex(0, primB, bpt3);
+    }
+}

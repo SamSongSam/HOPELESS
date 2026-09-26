@@ -1,0 +1,136 @@
+// =============================================================================
+// ISTRORIGAN - PART 14: EMERGENCY BULKHEAD & CANAL ISOLATION GATES (03.19)
+// =============================================================================
+// Canon: 03.19_STATE_DEPENDENCY & 03.18_STRUCTURE_CLEARANCE
+// 8 Heavy Emergency Watertight Floodgate Towers & Quarantine Blast Doors
+// straddling the 45m navigable fairways at the inner petal canals (R=165m).
+// =============================================================================
+
+float closeAmount   = clamp(chf("%C%bulkheadCloseAmount"), 0.0, 1.0);
+int   emergency     = chi("%C%emergencyState");
+int   localOverride = chi("%C%bulkheadLockdownOverride");
+if (emergency == 1 || localOverride == 1) {
+    closeAmount = 1.0;
+}
+
+float gateRadius  = 165.0; // Inner canal root radius
+float channelW    = 45.0;  // 45m minimum waterway clearance
+float towerW      = 8.0;
+float towerH      = 38.0;
+float gateTravelH = 25.0;
+
+vector colTower  = set(0.35, 0.36, 0.38);
+vector colDoor   = set(0.48, 0.42, 0.36);
+vector colHazard = (emergency == 1) ? set(1.0, 0.15, 0.1) : set(0.95, 0.65, 0.1); // Warning orange/red
+
+for (int i = 0; i < 8; i++) {
+    // Inter-petal seaways are at half-petal angles: (i + 0.5) * 45 deg
+    float canalAng = (float(i) + 0.5) * (M_PI * 0.25);
+    float cosA = cos(canalAng);
+    float sinA = sin(canalAng);
+
+    // Channel perpendicular vector
+    float crossX = -sinA;
+    float crossZ = cosA;
+
+    vector centerPos = set(cosA * gateRadius, 0.0, sinA * gateRadius);
+
+    // Left and Right Gantry Towers
+    for (int side = -1; side <= 1; side += 2) {
+        vector tCenter = centerPos + set(crossX * (channelW * 0.5 + towerW * 0.5) * float(side),
+                                         0,
+                                         crossZ * (channelW * 0.5 + towerW * 0.5) * float(side));
+
+        // Tower box: 8 verts
+        float hw = towerW * 0.5;
+        float hd = 6.0;
+        vector p0 = tCenter + set(crossX * -hw - cosA * hd, 0.0, crossZ * -hw - sinA * hd);
+        vector p1 = tCenter + set(crossX *  hw - cosA * hd, 0.0, crossZ *  hw - sinA * hd);
+        vector p2 = tCenter + set(crossX *  hw + cosA * hd, 0.0, crossZ *  hw + sinA * hd);
+        vector p3 = tCenter + set(crossX * -hw + cosA * hd, 0.0, crossZ * -hw + sinA * hd);
+
+        vector p4 = p0 + set(0, towerH, 0);
+        vector p5 = p1 + set(0, towerH, 0);
+        vector p6 = p2 + set(0, towerH, 0);
+        vector p7 = p3 + set(0, towerH, 0);
+
+        int pts[] = array(
+            addpoint(0, p0), addpoint(0, p1), addpoint(0, p2), addpoint(0, p3),
+            addpoint(0, p4), addpoint(0, p5), addpoint(0, p6), addpoint(0, p7)
+        );
+
+        foreach (int p; pts) {
+            setpointattrib(0, "Cd", p, colTower, "set");
+            setpointattrib(0, "part_id", p, 14, "set");
+        }
+
+        // 6 box faces
+        int faces[][] = array(
+            array(pts[0], pts[1], pts[2], pts[3]),
+            array(pts[7], pts[6], pts[5], pts[4]),
+            array(pts[0], pts[4], pts[5], pts[1]),
+            array(pts[1], pts[5], pts[6], pts[2]),
+            array(pts[2], pts[6], pts[7], pts[3]),
+            array(pts[3], pts[7], pts[4], pts[0])
+        );
+
+        foreach (int f_pts[]; faces) {
+            int pr = addprim(0, "poly");
+            foreach (int pt; f_pts) { addvertex(0, pr, pt); }
+        }
+    }
+
+    // Overhead Gantry Cross-Beam
+    float beamH = 6.0;
+    float totalSpan = channelW + towerW * 2.0;
+    vector bL1 = centerPos + set(crossX * (-totalSpan * 0.5), towerH, crossZ * (-totalSpan * 0.5));
+    vector bR1 = centerPos + set(crossX * ( totalSpan * 0.5), towerH, crossZ * ( totalSpan * 0.5));
+    vector bR2 = bR1 + set(0, beamH, 0);
+    vector bL2 = bL1 + set(0, beamH, 0);
+
+    int bp1 = addpoint(0, bL1); int bp2 = addpoint(0, bR1);
+    int bp3 = addpoint(0, bR2); int bp4 = addpoint(0, bL2);
+
+    setpointattrib(0, "Cd", bp1, colHazard, "set");
+    setpointattrib(0, "Cd", bp2, colHazard, "set");
+    setpointattrib(0, "Cd", bp3, colHazard, "set");
+    setpointattrib(0, "Cd", bp4, colHazard, "set");
+
+    setpointattrib(0, "part_id", bp1, 14, "set");
+    setpointattrib(0, "part_id", bp2, 14, "set");
+    setpointattrib(0, "part_id", bp3, 14, "set");
+    setpointattrib(0, "part_id", bp4, 14, "set");
+
+    int prBeam = addprim(0, "poly");
+    addvertex(0, prBeam, bp1); addvertex(0, prBeam, bp2);
+    addvertex(0, prBeam, bp3); addvertex(0, prBeam, bp4);
+
+    // Movable Bulkhead Blast Door Blade
+    // When closeAmount = 0.0 (open): door hovers overhead at Y = 28m
+    // When closeAmount = 1.0 (closed): door descends to sea level Y = -5m to +15m
+    float doorElevation = fit01(closeAmount, 24.0, -2.0);
+    float doorHeight = 18.0;
+    float doorSpan = channelW + 2.0;
+
+    vector dL1 = centerPos + set(crossX * (-doorSpan * 0.5), doorElevation, crossZ * (-doorSpan * 0.5));
+    vector dR1 = centerPos + set(crossX * ( doorSpan * 0.5), doorElevation, crossZ * ( doorSpan * 0.5));
+    vector dR2 = dR1 + set(0, doorHeight, 0);
+    vector dL2 = dL1 + set(0, doorHeight, 0);
+
+    int dp1 = addpoint(0, dL1); int dp2 = addpoint(0, dR1);
+    int dp3 = addpoint(0, dR2); int dp4 = addpoint(0, dL2);
+
+    setpointattrib(0, "Cd", dp1, colDoor, "set");
+    setpointattrib(0, "Cd", dp2, colDoor, "set");
+    setpointattrib(0, "Cd", dp3, colDoor, "set");
+    setpointattrib(0, "Cd", dp4, colDoor, "set");
+
+    setpointattrib(0, "part_id", dp1, 14, "set");
+    setpointattrib(0, "part_id", dp2, 14, "set");
+    setpointattrib(0, "part_id", dp3, 14, "set");
+    setpointattrib(0, "part_id", dp4, 14, "set");
+
+    int prDoor = addprim(0, "poly");
+    addvertex(0, prDoor, dp1); addvertex(0, prDoor, dp2);
+    addvertex(0, prDoor, dp3); addvertex(0, prDoor, dp4);
+}

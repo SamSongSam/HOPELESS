@@ -1,0 +1,49 @@
+int   numPetals = chi("%C%petalCount");
+float petalLen  = chf("%C%petalLength");
+float minClear  = chf("%C%minWaterwayClearance");
+int   segs = 64;
+
+// 1. Waterway 45m Clearance Zone Lines
+for (int p = 0; p < numPetals; p++) {
+    float a = (float(p) + 0.5) / float(numPetals) * M_PI * 2.0;
+    vector dir = set(sin(a), 0, cos(a));
+    vector left = set(-dir.z, 0, dir.x) * (minClear * 0.5);
+    
+    int p1 = addpoint(0, dir * 150.0 - left);
+    int p2 = addpoint(0, dir * (150.0 + petalLen) - left);
+    int p3 = addpoint(0, dir * (150.0 + petalLen) + left);
+    int p4 = addpoint(0, dir * 150.0 + left);
+    
+    setpointattrib(0, "Cd", p1, {1.0, 0.25, 0.15}); // Red forbidden corridor
+    setpointattrib(0, "Cd", p2, {1.0, 0.25, 0.15});
+    setpointattrib(0, "Cd", p3, {1.0, 0.25, 0.15});
+    setpointattrib(0, "Cd", p4, {1.0, 0.25, 0.15});
+    
+    int poly = addprim(0, "polyline");
+    addvertex(0, poly, p1);
+    addvertex(0, poly, p2);
+    
+    int poly2 = addprim(0, "polyline");
+    addvertex(0, poly2, p4);
+    addvertex(0, poly2, p3);
+}
+
+// 2. Concentric Radii Rings (Plaza 150m, Petals 1100m, Barrier 1500m)
+float radii[] = array(150.0, 220.0, 650.0, 1100.0, 1500.0);
+vector r_cols[] = array(
+    set(0.95, 0.90, 0.30),
+    set(1.0, 0.70, 0.10),
+    set(0.20, 0.85, 0.50),
+    set(0.20, 0.60, 1.0),
+    set(0.10, 0.90, 1.0)
+);
+
+for (int r = 0; r < len(radii); r++) {
+    int prim = addprim(0, "poly");
+    for (int s = 0; s < segs; s++) {
+        float a = float(s) / float(segs) * M_PI * 2.0;
+        int pt = addpoint(0, set(cos(a) * radii[r], 0.0, sin(a) * radii[r]));
+        setpointattrib(0, "Cd", pt, r_cols[r]);
+        addvertex(0, prim, pt);
+    }
+}

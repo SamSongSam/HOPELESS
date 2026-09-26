@@ -1,0 +1,136 @@
+// =============================================================================
+// ISTRORIGAN - PART 11: CORE-TO-STEM RING 1 STRUCTURAL INTERFACE COLLAR (03.15)
+// =============================================================================
+// Canon: 03.15_FLOWER_STEM_CONNECTION & 03.02.07 Center Coupling
+// Massive structural collar transferring radial thrust and vertical weight
+// between Citadel Core (Z=0m) and Inverted Submerged Ring 1 (Z=-45m).
+// =============================================================================
+
+int   segs       = 32;
+float topZ       = chf("%C%collarTopZ");       // Default: 0.0m
+float botZ       = chf("%C%collarBotZ");       // Default: -50.0m
+float topR       = chf("%C%collarTopRadius");  // Default: 95.0m
+float botR       = chf("%C%collarBotRadius");  // Default: 82.0m
+float wallThick  = 8.0;
+
+vector colCollar = set(0.32, 0.38, 0.44);
+vector colFlange = set(0.24, 0.28, 0.34);
+vector colSeal   = set(0.15, 0.75, 0.85); // Bioluminescent pressure seal
+
+// 1. Double-walled Conical Collar Shell
+int rings = 8;
+for (int r = 0; r < rings; r++) {
+    float v1 = float(r) / float(rings);
+    float v2 = float(r + 1) / float(rings);
+    float z1 = topZ + v1 * (botZ - topZ);
+    float z2 = topZ + v2 * (botZ - topZ);
+    float rOuter1 = fit01(v1, topR, botR);
+    float rOuter2 = fit01(v2, topR, botR);
+    float rInner1 = rOuter1 - wallThick;
+    float rInner2 = rOuter2 - wallThick;
+
+    for (int s = 0; s < segs; s++) {
+        float a1 = float(s) / float(segs) * M_PI * 2.0;
+        float a2 = float(s + 1) / float(segs) * M_PI * 2.0;
+
+        // Outer surface
+        vector p1 = set(cos(a1) * rOuter1, z1, sin(a1) * rOuter1);
+        vector p2 = set(cos(a2) * rOuter1, z1, sin(a2) * rOuter1);
+        vector p3 = set(cos(a2) * rOuter2, z2, sin(a2) * rOuter2);
+        vector p4 = set(cos(a1) * rOuter2, z2, sin(a1) * rOuter2);
+
+        int pt1 = addpoint(0, p1);
+        int pt2 = addpoint(0, p2);
+        int pt3 = addpoint(0, p3);
+        int pt4 = addpoint(0, p4);
+
+        vector col = (r == 0 || r == rings - 1) ? colFlange : colCollar;
+        setpointattrib(0, "Cd", pt1, col, "set");
+        setpointattrib(0, "Cd", pt2, col, "set");
+        setpointattrib(0, "Cd", pt3, col, "set");
+        setpointattrib(0, "Cd", pt4, col, "set");
+
+        setpointattrib(0, "part_id", pt1, 11, "set");
+        setpointattrib(0, "part_id", pt2, 11, "set");
+        setpointattrib(0, "part_id", pt3, 11, "set");
+        setpointattrib(0, "part_id", pt4, 11, "set");
+
+        int prim = addprim(0, "poly");
+        addvertex(0, prim, pt1);
+        addvertex(0, prim, pt2);
+        addvertex(0, prim, pt3);
+        addvertex(0, prim, pt4);
+    }
+}
+
+// 2. 8 Massive Radial Load-Bearing Gussets (Aligned to Petal Axes)
+for (int i = 0; i < 8; i++) {
+    float ang = float(i) * (M_PI * 0.25);
+    float cosA = cos(ang);
+    float sinA = sin(ang);
+    float normX = -sinA;
+    float normZ = cosA;
+    float gussetThick = 4.0;
+
+    vector g_top_in  = set(cosA * (topR - 2.0), topZ, sinA * (topR - 2.0));
+    vector g_top_out = set(cosA * (topR + 22.0), topZ - 8.0, sinA * (topR + 22.0));
+    vector g_bot_out = set(cosA * (botR + 8.0), botZ + 10.0, sinA * (botR + 8.0));
+    vector g_bot_in  = set(cosA * botR, botZ, sinA * botR);
+
+    // Left face
+    int pL1 = addpoint(0, g_top_in  + set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+    int pL2 = addpoint(0, g_top_out + set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+    int pL3 = addpoint(0, g_bot_out + set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+    int pL4 = addpoint(0, g_bot_in  + set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+
+    // Right face
+    int pR1 = addpoint(0, g_top_in  - set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+    int pR2 = addpoint(0, g_top_out - set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+    int pR3 = addpoint(0, g_bot_out - set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+    int pR4 = addpoint(0, g_bot_in  - set(normX * gussetThick * 0.5, 0, normZ * gussetThick * 0.5));
+
+    int pts[] = array(pL1, pL2, pL3, pL4, pR1, pR2, pR3, pR4);
+    foreach (int p; pts) {
+        setpointattrib(0, "Cd", p, colFlange, "set");
+        setpointattrib(0, "part_id", p, 11, "set");
+    }
+
+    // Outer face
+    int pr1 = addprim(0, "poly");
+    addvertex(0, pr1, pL2); addvertex(0, pr1, pR2); addvertex(0, pr1, pR3); addvertex(0, pr1, pL3);
+    // Side faces
+    int pr2 = addprim(0, "poly");
+    addvertex(0, pr2, pL1); addvertex(0, pr2, pL2); addvertex(0, pr2, pL3); addvertex(0, pr2, pL4);
+    int pr3 = addprim(0, "poly");
+    addvertex(0, pr3, pR4); addvertex(0, pr3, pR3); addvertex(0, pr3, pR2); addvertex(0, pr3, pR1);
+}
+
+// 3. Circumferential Hydrostatic Pressure Gasket Ring
+int gasketRings = 16;
+float gZ = (topZ + botZ) * 0.5;
+float gR = (topR + botR) * 0.5 + 1.2;
+for (int s = 0; s < gasketRings; s++) {
+    float a1 = float(s) / float(gasketRings) * M_PI * 2.0;
+    float a2 = float(s + 1) / float(gasketRings) * M_PI * 2.0;
+
+    vector p1 = set(cos(a1) * gR, gZ + 2.5, sin(a1) * gR);
+    vector p2 = set(cos(a2) * gR, gZ + 2.5, sin(a2) * gR);
+    vector p3 = set(cos(a2) * gR, gZ - 2.5, sin(a2) * gR);
+    vector p4 = set(cos(a1) * gR, gZ - 2.5, sin(a1) * gR);
+
+    int pt1 = addpoint(0, p1); int pt2 = addpoint(0, p2);
+    int pt3 = addpoint(0, p3); int pt4 = addpoint(0, p4);
+
+    setpointattrib(0, "Cd", pt1, colSeal, "set");
+    setpointattrib(0, "Cd", pt2, colSeal, "set");
+    setpointattrib(0, "Cd", pt3, colSeal, "set");
+    setpointattrib(0, "Cd", pt4, colSeal, "set");
+
+    setpointattrib(0, "part_id", pt1, 11, "set");
+    setpointattrib(0, "part_id", pt2, 11, "set");
+    setpointattrib(0, "part_id", pt3, 11, "set");
+    setpointattrib(0, "part_id", pt4, 11, "set");
+
+    int prim = addprim(0, "poly");
+    addvertex(0, prim, pt1); addvertex(0, prim, pt2); addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+}

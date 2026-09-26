@@ -1,0 +1,122 @@
+int   tiers       = chi("%C%ringTierCount");
+float neckR       = chf("%C%surfaceNeckRadius");
+float baseR       = chf("%C%seabedAbyssalRadius");
+float maxD        = chf("%C%totalSubmergedDepth");
+
+vector colCyanGlow = set(0.0, 0.92, 1.0);  // Electric Turquoise Underwater Caustic Glow
+vector colAquaDeep = set(0.05, 0.45, 0.65); // Abyssal Sea Transition
+vector colHull     = set(0.78, 0.84, 0.90); // Titanium Ceramic Bulkhead
+
+// =============================================================================
+// 1. FOREGROUND CASCADING GLOWING AQUA TIERS (LOTUS_ACADEMY_CITY.jpg Foreground)
+// =============================================================================
+int cascadeTiers = 12;
+int arcSegs = 28;
+
+for (int c = 0; c < cascadeTiers; c++) {
+    float v1 = float(c) / float(cascadeTiers);
+    float v2 = float(c + 1) / float(cascadeTiers);
+    
+    // Parabolic expanding radius of the front water amphitheater
+    float r_inner = lerp(130.0, 520.0, pow(v1, 0.85));
+    float r_outer = lerp(130.0, 520.0, pow(v2, 0.85));
+    
+    // Stepped depths (cascading down in sharp terrace drops)
+    float treadY  = -v1 * 75.0;       // Flat water terrace
+    float riserY  = -v2 * 75.0;       // Vertical waterfall / drop step
+    
+    // Front channel opening arc (-PI*0.38 to +PI*0.38)
+    for (int s = 0; s < arcSegs; s++) {
+        float a1 = lerp(-M_PI * 0.38, M_PI * 0.38, float(s) / float(arcSegs));
+        float a2 = lerp(-M_PI * 0.38, M_PI * 0.38, float(s + 1) / float(arcSegs));
+        
+        // 1. Horizontal Tread Surface (Water resting on terrace)
+        vector t1 = set(sin(a1) * r_inner, treadY, cos(a1) * r_inner);
+        vector t2 = set(sin(a2) * r_inner, treadY, cos(a2) * r_inner);
+        vector t3 = set(sin(a2) * r_outer, treadY, cos(a2) * r_outer);
+        vector t4 = set(sin(a1) * r_outer, treadY, cos(a1) * r_outer);
+        
+        int pt1 = addpoint(0, t1);
+        int pt2 = addpoint(0, t2);
+        int pt3 = addpoint(0, t3);
+        int pt4 = addpoint(0, t4);
+        
+        // Gradient color: intense cyan on outer rim, deeper aqua inward
+        vector treadCol = lerp(colCyanGlow, colAquaDeep, v1 * 0.7);
+        setpointattrib(0, "Cd", pt1, treadCol, "set");
+        setpointattrib(0, "Cd", pt2, treadCol, "set");
+        setpointattrib(0, "Cd", pt3, treadCol, "set");
+        setpointattrib(0, "Cd", pt4, treadCol, "set");
+        
+        setpointattrib(0, "part_id", pt1, 8, "set");
+        setpointattrib(0, "part_id", pt2, 8, "set");
+        setpointattrib(0, "part_id", pt3, 8, "set");
+        setpointattrib(0, "part_id", pt4, 8, "set");
+        
+        int t_prim = addprim(0, "poly");
+        addvertex(0, t_prim, pt1); addvertex(0, t_prim, pt2); addvertex(0, t_prim, pt3); addvertex(0, t_prim, pt4);
+        
+        // 2. Vertical Riser Lip (Glowing Bullnose Step Edge)
+        vector r3 = set(sin(a2) * r_outer, riserY, cos(a2) * r_outer);
+        vector r4 = set(sin(a1) * r_outer, riserY, cos(a1) * r_outer);
+        
+        int pr3 = addpoint(0, r3);
+        int pr4 = addpoint(0, r4);
+        
+        setpointattrib(0, "Cd", pr3, colCyanGlow * 1.3, "set"); // Emissive caustics rim
+        setpointattrib(0, "Cd", pr4, colCyanGlow * 1.3, "set");
+        setpointattrib(0, "part_id", pr3, 8, "set");
+        setpointattrib(0, "part_id", pr4, 8, "set");
+        
+        int r_prim = addprim(0, "poly");
+        addvertex(0, r_prim, pt4); addvertex(0, r_prim, pt3); addvertex(0, r_prim, pr3); addvertex(0, r_prim, pr4);
+    }
+}
+
+// =============================================================================
+// 2. 12 TELESCOPIC DEEP-SEA STEM RINGS (Sea Level down to -900m Abyss)
+// =============================================================================
+int stemSegs = 36;
+for (int t = 0; t < tiers; t++) {
+    float v1 = float(t) / float(tiers);
+    float v2 = float(t + 1) / float(tiers);
+    float y1 = v1 * maxD;
+    float y2 = v2 * maxD;
+    
+    // Exponential expansion profile down to seabed
+    float r1 = lerp(neckR, baseR, pow(v1, 1.35));
+    float r2 = lerp(neckR, baseR, pow(v2, 1.35));
+    
+    for (int s = 0; s < stemSegs; s++) {
+        float a1 = float(s) / float(stemSegs) * M_PI * 2.0;
+        float a2 = float(s + 1) / float(stemSegs) * M_PI * 2.0;
+        
+        // Structural rib flute
+        float rib1 = 1.0 + 0.06 * cos(a1 * 12.0);
+        float rib2 = 1.0 + 0.06 * cos(a2 * 12.0);
+        
+        vector p1 = set(cos(a1) * r1 * rib1, y1, sin(a1) * r1 * rib1);
+        vector p2 = set(cos(a2) * r1 * rib2, y1, sin(a2) * r1 * rib2);
+        vector p3 = set(cos(a2) * r2 * rib2, y2, sin(a2) * r2 * rib2);
+        vector p4 = set(cos(a1) * r2 * rib1, y2, sin(a1) * r2 * rib1);
+        
+        int pt1 = addpoint(0, p1);
+        int pt2 = addpoint(0, p2);
+        int pt3 = addpoint(0, p3);
+        int pt4 = addpoint(0, p4);
+        
+        vector shade = lerp(colHull, set(0.08, 0.28, 0.42), v1);
+        setpointattrib(0, "Cd", pt1, shade, "set");
+        setpointattrib(0, "Cd", pt2, shade, "set");
+        setpointattrib(0, "Cd", pt3, shade, "set");
+        setpointattrib(0, "Cd", pt4, shade, "set");
+        
+        setpointattrib(0, "part_id", pt1, 8, "set");
+        setpointattrib(0, "part_id", pt2, 8, "set");
+        setpointattrib(0, "part_id", pt3, 8, "set");
+        setpointattrib(0, "part_id", pt4, 8, "set");
+        
+        int prim = addprim(0, "poly");
+        addvertex(0, prim, pt1); addvertex(0, prim, pt2); addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+    }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Hex_Barrier_Dome",
+  "vertex_count": 513,
+  "face_count": 992,
+  "radius_cm": 120000.0,
+  "apex_height_cm": 50000.0,
+  "radius_m": 1200.0,
+  "apex_height_m": 500.0
+}

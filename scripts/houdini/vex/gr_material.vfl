@@ -1,0 +1,5 @@
+string m = chs("%C%targetMaterial");
+if (m != "") {
+    s@shop_materialpath = m;
+    s@unreal_material   = m;
+}

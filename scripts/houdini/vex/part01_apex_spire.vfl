@@ -1,0 +1,187 @@
+int   segs        = 32;
+float H           = chf("%C%spireHeight");
+float baseH       = chf("%C%citadelPlazaHeight");
+float baseR       = chf("%C%citadelPlazaRadius");
+float splitStart  = H * 0.50; // Tower cleaves into dual blades at 50% height
+vector colIvory   = chv("%C%colCitadel");
+vector colPylon   = set(0.97, 0.96, 0.94);
+vector colGlass   = set(0.15, 0.85, 0.95);
+vector colPodium  = set(0.88, 0.86, 0.82);
+
+// =============================================================================
+// 1. SPLAYED ROOT BUTTRESSES & LOWER MONOLITHIC SHAFT (baseH to splitStart)
+// =============================================================================
+int shaftRings = 20;
+for (int r = 0; r < shaftRings; r++) {
+    float v1 = float(r) / float(shaftRings);
+    float v2 = float(r + 1) / float(shaftRings);
+    float y1 = baseH + v1 * (splitStart - baseH);
+    float y2 = baseH + v2 * (splitStart - baseH);
+    
+    // Splaying exponential flare at base (buttress roots)
+    float flare1 = 1.0 + pow(1.0 - v1, 2.8) * 1.6;
+    float flare2 = 1.0 + pow(1.0 - v2, 2.8) * 1.6;
+    
+    float radX1 = baseR * 0.32 * (1.0 - v1 * 0.40) * flare1;
+    float radX2 = baseR * 0.32 * (1.0 - v2 * 0.40) * flare2;
+    float radZ1 = baseR * 0.22 * (1.0 - v1 * 0.35) * flare1;
+    float radZ2 = baseR * 0.22 * (1.0 - v2 * 0.35) * flare2;
+    
+    for (int s = 0; s < segs; s++) {
+        float a1 = float(s) / float(segs) * M_PI * 2.0;
+        float a2 = float(s + 1) / float(segs) * M_PI * 2.0;
+        
+        // 8 Architectural Buttress Flutes
+        float fluteMod1 = 1.0 + 0.12 * cos(a1 * 8.0) * pow(1.0 - v1, 1.5);
+        float fluteMod2 = 1.0 + 0.12 * cos(a2 * 8.0) * pow(1.0 - v2, 1.5);
+        
+        vector p1 = set(cos(a1) * radX1 * fluteMod1, y1, sin(a1) * radZ1 * fluteMod1);
+        vector p2 = set(cos(a2) * radX1 * fluteMod2, y1, sin(a2) * radZ1 * fluteMod2);
+        vector p3 = set(cos(a2) * radX2 * fluteMod2, y2, sin(a2) * radZ2 * fluteMod2);
+        vector p4 = set(cos(a1) * radX2 * fluteMod1, y2, sin(a1) * radZ2 * fluteMod1);
+        
+        int pt1 = addpoint(0, p1);
+        int pt2 = addpoint(0, p2);
+        int pt3 = addpoint(0, p3);
+        int pt4 = addpoint(0, p4);
+        
+        setpointattrib(0, "Cd", pt1, colPylon, "set");
+        setpointattrib(0, "Cd", pt2, colPylon, "set");
+        setpointattrib(0, "Cd", pt3, colPylon, "set");
+        setpointattrib(0, "Cd", pt4, colPylon, "set");
+        
+        setpointattrib(0, "part_id", pt1, 1, "set");
+        setpointattrib(0, "part_id", pt2, 1, "set");
+        setpointattrib(0, "part_id", pt3, 1, "set");
+        setpointattrib(0, "part_id", pt4, 1, "set");
+        
+        int prim = addprim(0, "poly");
+        addvertex(0, prim, pt1);
+        addvertex(0, prim, pt2);
+        addvertex(0, prim, pt3);
+        addvertex(0, prim, pt4);
+    }
+}
+
+// =============================================================================
+// 2. SCULPTURAL TWIN-PYLON (DUAL-BLADE) FORK APEX (splitStart to H)
+// =============================================================================
+int bladeRings = 24;
+for (int side = -1; side <= 1; side += 2) {
+    float sgn = float(side);
+    
+    for (int r = 0; r < bladeRings; r++) {
+        float v1 = float(r) / float(bladeRings);
+        float v2 = float(r + 1) / float(bladeRings);
+        float y1 = splitStart + v1 * (H - splitStart);
+        float y2 = splitStart + v2 * (H - splitStart);
+        
+        // Blade spreads outward slightly, then curves inward at tip
+        float spread1 = sgn * (baseR * 0.12 + sin(v1 * M_PI * 0.85) * (baseR * 0.08));
+        float spread2 = sgn * (baseR * 0.12 + sin(v2 * M_PI * 0.85) * (baseR * 0.08));
+        
+        // Airfoil thickness tapers sharply toward apex
+        float th1 = (1.0 - pow(v1, 0.85)) * (baseR * 0.09) + 1.5;
+        float th2 = (1.0 - pow(v2, 0.85)) * (baseR * 0.09) + 1.5;
+        float chord1 = (1.0 - v1 * 0.65) * (baseR * 0.18);
+        float chord2 = (1.0 - v2 * 0.65) * (baseR * 0.18);
+        
+        // 4 Profile points of aerodynamic blade
+        vector b1_in  = set(spread1 - sgn * th1 * 0.25, y1, -chord1 * 0.5);
+        vector b1_out = set(spread1 + sgn * th1,        y1, -chord1 * 0.5);
+        vector b1_tip = set(spread1,                    y1,  chord1 * 0.5);
+        
+        vector b2_in  = set(spread2 - sgn * th2 * 0.25, y2, -chord2 * 0.5);
+        vector b2_out = set(spread2 + sgn * th2,        y2, -chord2 * 0.5);
+        vector b2_tip = set(spread2,                    y2,  chord2 * 0.5);
+        
+        // Inner face (faces the central void - glows cyan)
+        int p_in1 = addpoint(0, b1_in);
+        int p_in2 = addpoint(0, b2_in);
+        int p_tip2= addpoint(0, b2_tip);
+        int p_tip1= addpoint(0, b1_tip);
+        setpointattrib(0, "Cd", p_in1, colGlass, "set");
+        setpointattrib(0, "Cd", p_in2, colGlass, "set");
+        setpointattrib(0, "Cd", p_tip2, colPylon, "set");
+        setpointattrib(0, "Cd", p_tip1, colPylon, "set");
+        int q_in = addprim(0, "poly");
+        addvertex(0, q_in, p_in1); addvertex(0, q_in, p_in2); addvertex(0, q_in, p_tip2); addvertex(0, q_in, p_tip1);
+        
+        // Outer curved face (Ivory-white)
+        int p_out1 = addpoint(0, b1_out);
+        int p_out2 = addpoint(0, b2_out);
+        setpointattrib(0, "Cd", p_out1, colPylon, "set");
+        setpointattrib(0, "Cd", p_out2, colPylon, "set");
+        int q_out = addprim(0, "poly");
+        addvertex(0, q_out, p_tip1); addvertex(0, q_out, p_tip2); addvertex(0, q_out, p_out2); addvertex(0, q_out, p_out1);
+        
+        // Back spine face
+        int q_back = addprim(0, "poly");
+        addvertex(0, q_back, p_out1); addvertex(0, q_back, p_out2); addvertex(0, q_back, p_in2); addvertex(0, q_back, p_in1);
+    }
+}
+
+// =============================================================================
+// 3. SUSPENDED COUNCIL OF TEN CROWN OBSERVATORY (+520m)
+// =============================================================================
+vector obsCenter = set(0.0, H * 0.82, 0.0);
+float obsR = baseR * 0.10;
+int obsSegs = 16;
+for (int s = 0; s < obsSegs; s++) {
+    float th1 = float(s) / float(obsSegs) * M_PI * 2.0;
+    float th2 = float(s + 1) / float(obsSegs) * M_PI * 2.0;
+    
+    vector op1 = obsCenter + set(cos(th1) * obsR, -10.0, sin(th1) * obsR);
+    vector op2 = obsCenter + set(cos(th2) * obsR, -10.0, sin(th2) * obsR);
+    vector op3 = obsCenter + set(cos(th2) * (obsR * 0.7), 12.0, sin(th2) * (obsR * 0.7));
+    vector op4 = obsCenter + set(cos(th1) * (obsR * 0.7), 12.0, sin(th1) * (obsR * 0.7));
+    
+    int opt1 = addpoint(0, op1);
+    int opt2 = addpoint(0, op2);
+    int opt3 = addpoint(0, op3);
+    int opt4 = addpoint(0, op4);
+    
+    setpointattrib(0, "Cd", opt1, colGlass, "set");
+    setpointattrib(0, "Cd", opt2, colGlass, "set");
+    setpointattrib(0, "Cd", opt3, colGlass, "set");
+    setpointattrib(0, "Cd", opt4, colGlass, "set");
+    
+    int oq = addprim(0, "poly");
+    addvertex(0, oq, opt1); addvertex(0, oq, opt2); addvertex(0, oq, opt3); addvertex(0, oq, opt4);
+}
+
+// =============================================================================
+// 4. STEPPED CONCENTRIC PODIUM PLAZA (R=150m)
+// =============================================================================
+int podSteps = 6;
+for (int st = 0; st < podSteps; st++) {
+    float fst1 = float(st) / float(podSteps);
+    float fst2 = float(st + 1) / float(podSteps);
+    float pr1 = lerp(baseR, baseR * 0.40, fst1);
+    float pr2 = lerp(baseR, baseR * 0.40, fst2);
+    float py1 = fst1 * baseH;
+    float py2 = fst2 * baseH;
+    
+    for (int s = 0; s < segs; s++) {
+        float a1 = float(s) / float(segs) * M_PI * 2.0;
+        float a2 = float(s + 1) / float(segs) * M_PI * 2.0;
+        
+        vector p1 = set(cos(a1) * pr1, py1, sin(a1) * pr1);
+        vector p2 = set(cos(a2) * pr1, py1, sin(a2) * pr1);
+        vector p3 = set(cos(a2) * pr2, py2, sin(a2) * pr2);
+        vector p4 = set(cos(a1) * pr2, py2, sin(a1) * pr2);
+        
+        int pt1 = addpoint(0, p1);
+        int pt2 = addpoint(0, p2);
+        int pt3 = addpoint(0, p3);
+        int pt4 = addpoint(0, p4);
+        
+        setpointattrib(0, "Cd", pt1, colPodium, "set");
+        setpointattrib(0, "Cd", pt2, colPodium, "set");
+        setpointattrib(0, "Cd", pt3, colPodium, "set");
+        setpointattrib(0, "Cd", pt4, colPodium, "set");
+        
+        int pq = addprim(0, "poly");
+        addvertex(0, pq, pt1); addvertex(0, pq, pt2); addvertex(0, pq, pt3); addvertex(0, pq, pt4);
+    }
+}

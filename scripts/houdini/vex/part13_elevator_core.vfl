@@ -1,0 +1,156 @@
+// =============================================================================
+// ISTRORIGAN - PART 13: VERTICAL DEEP-SEA TRANSIT ELEVATOR CORE (03.13)
+// =============================================================================
+// Canon: 03.13_STEM_TRANSPORT
+// High-speed maglev elevator spine running from Citadel (+120m)
+// to Seabed Doomsday Vault (-1,000m) with 5 pressurized airlock stations.
+// =============================================================================
+
+int   segs         = 24;
+float topZ         = chf("%C%elevatorTopZ");       // Default: 120.0m
+float botZ         = chf("%C%elevatorBotZ");       // Default: -980.0m
+float coreR        = chf("%C%elevatorRadius");     // Default: 12.0m
+
+vector colShaft    = set(0.22, 0.26, 0.30);
+vector colTrack    = set(0.12, 0.15, 0.18);
+vector colStation  = set(0.35, 0.40, 0.46);
+vector colLight    = set(0.20, 0.85, 0.95); // Glowing cyan station markers
+
+// 1. Continuous Main Vertical Pressure Tube
+int vSegments = 40;
+for (int i = 0; i < vSegments; i++) {
+    float frac1 = float(i) / float(vSegments);
+    float frac2 = float(i + 1) / float(vSegments);
+    float z1 = fit01(frac1, topZ, botZ);
+    float z2 = fit01(frac2, topZ, botZ);
+
+    for (int s = 0; s < segs; s++) {
+        float a1 = float(s) / float(segs) * M_PI * 2.0;
+        float a2 = float(s + 1) / float(segs) * M_PI * 2.0;
+
+        vector p1 = set(cos(a1) * coreR, z1, sin(a1) * coreR);
+        vector p2 = set(cos(a2) * coreR, z1, sin(a2) * coreR);
+        vector p3 = set(cos(a2) * coreR, z2, sin(a2) * coreR);
+        vector p4 = set(cos(a1) * coreR, z2, sin(a1) * coreR);
+
+        int pt1 = addpoint(0, p1); int pt2 = addpoint(0, p2);
+        int pt3 = addpoint(0, p3); int pt4 = addpoint(0, p4);
+
+        setpointattrib(0, "Cd", pt1, colShaft, "set");
+        setpointattrib(0, "Cd", pt2, colShaft, "set");
+        setpointattrib(0, "Cd", pt3, colShaft, "set");
+        setpointattrib(0, "Cd", pt4, colShaft, "set");
+
+        setpointattrib(0, "part_id", pt1, 13, "set");
+        setpointattrib(0, "part_id", pt2, 13, "set");
+        setpointattrib(0, "part_id", pt3, 13, "set");
+        setpointattrib(0, "part_id", pt4, 13, "set");
+
+        int prim = addprim(0, "poly");
+        addvertex(0, prim, pt1); addvertex(0, prim, pt2);
+        addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+    }
+}
+
+// 2. 4 External High-Speed Maglev Track Guides (Cardinal Directions)
+float trackW = 3.5;
+float trackOut = 2.5;
+for (int c = 0; c < 4; c++) {
+    float ang = float(c) * (M_PI * 0.5);
+    float cosA = cos(ang);
+    float sinA = sin(ang);
+    float sideX = -sinA;
+    float sideZ = cosA;
+
+    for (int i = 0; i < vSegments; i++) {
+        float frac1 = float(i) / float(vSegments);
+        float frac2 = float(i + 1) / float(vSegments);
+        float z1 = fit01(frac1, topZ, botZ);
+        float z2 = fit01(frac2, topZ, botZ);
+
+        vector center1 = set(cosA * (coreR + trackOut), z1, sinA * (coreR + trackOut));
+        vector center2 = set(cosA * (coreR + trackOut), z2, sinA * (coreR + trackOut));
+
+        vector pL1 = center1 + set(sideX * trackW * 0.5, 0, sideZ * trackW * 0.5);
+        vector pR1 = center1 - set(sideX * trackW * 0.5, 0, sideZ * trackW * 0.5);
+        vector pR2 = center2 - set(sideX * trackW * 0.5, 0, sideZ * trackW * 0.5);
+        vector pL2 = center2 + set(sideX * trackW * 0.5, 0, sideZ * trackW * 0.5);
+
+        int pt1 = addpoint(0, pL1); int pt2 = addpoint(0, pR1);
+        int pt3 = addpoint(0, pR2); int pt4 = addpoint(0, pL2);
+
+        setpointattrib(0, "Cd", pt1, colTrack, "set");
+        setpointattrib(0, "Cd", pt2, colTrack, "set");
+        setpointattrib(0, "Cd", pt3, colTrack, "set");
+        setpointattrib(0, "Cd", pt4, colTrack, "set");
+
+        setpointattrib(0, "part_id", pt1, 13, "set");
+        setpointattrib(0, "part_id", pt2, 13, "set");
+        setpointattrib(0, "part_id", pt3, 13, "set");
+        setpointattrib(0, "part_id", pt4, 13, "set");
+
+        int prim = addprim(0, "poly");
+        addvertex(0, prim, pt1); addvertex(0, prim, pt2);
+        addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+    }
+}
+
+// 3. 5 Pressurized Airlock Station Hubs (Z = 0m, -250m, -500m, -750m, -950m)
+float stationDepths[] = array(0.0, -250.0, -500.0, -750.0, -950.0);
+float stRad = coreR * 2.2;
+float stHeight = 16.0;
+
+foreach (float sz; stationDepths) {
+    if (sz <= topZ && sz >= botZ) {
+        int sSegs = 24;
+        for (int s = 0; s < sSegs; s++) {
+            float a1 = float(s) / float(sSegs) * M_PI * 2.0;
+            float a2 = float(s + 1) / float(sSegs) * M_PI * 2.0;
+
+            vector p1 = set(cos(a1) * stRad, sz + stHeight * 0.5, sin(a1) * stRad);
+            vector p2 = set(cos(a2) * stRad, sz + stHeight * 0.5, sin(a2) * stRad);
+            vector p3 = set(cos(a2) * stRad, sz - stHeight * 0.5, sin(a2) * stRad);
+            vector p4 = set(cos(a1) * stRad, sz - stHeight * 0.5, sin(a1) * stRad);
+
+            int pt1 = addpoint(0, p1); int pt2 = addpoint(0, p2);
+            int pt3 = addpoint(0, p3); int pt4 = addpoint(0, p4);
+
+            setpointattrib(0, "Cd", pt1, colStation, "set");
+            setpointattrib(0, "Cd", pt2, colStation, "set");
+            setpointattrib(0, "Cd", pt3, colStation, "set");
+            setpointattrib(0, "Cd", pt4, colStation, "set");
+
+            setpointattrib(0, "part_id", pt1, 13, "set");
+            setpointattrib(0, "part_id", pt2, 13, "set");
+            setpointattrib(0, "part_id", pt3, 13, "set");
+            setpointattrib(0, "part_id", pt4, 13, "set");
+
+            int prim = addprim(0, "poly");
+            addvertex(0, prim, pt1); addvertex(0, prim, pt2);
+            addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+
+            // Glowing illuminated band at mid-station
+            vector b1 = set(cos(a1) * (stRad + 0.3), sz + 1.2, sin(a1) * (stRad + 0.3));
+            vector b2 = set(cos(a2) * (stRad + 0.3), sz + 1.2, sin(a2) * (stRad + 0.3));
+            vector b3 = set(cos(a2) * (stRad + 0.3), sz - 1.2, sin(a2) * (stRad + 0.3));
+            vector b4 = set(cos(a1) * (stRad + 0.3), sz - 1.2, sin(a1) * (stRad + 0.3));
+
+            int bp1 = addpoint(0, b1); int bp2 = addpoint(0, b2);
+            int bp3 = addpoint(0, b3); int bp4 = addpoint(0, b4);
+
+            setpointattrib(0, "Cd", bp1, colLight, "set");
+            setpointattrib(0, "Cd", bp2, colLight, "set");
+            setpointattrib(0, "Cd", bp3, colLight, "set");
+            setpointattrib(0, "Cd", bp4, colLight, "set");
+
+            setpointattrib(0, "part_id", bp1, 13, "set");
+            setpointattrib(0, "part_id", bp2, 13, "set");
+            setpointattrib(0, "part_id", bp3, 13, "set");
+            setpointattrib(0, "part_id", bp4, 13, "set");
+
+            int prB = addprim(0, "poly");
+            addvertex(0, prB, bp1); addvertex(0, prB, bp2);
+            addvertex(0, prB, bp3); addvertex(0, prB, bp4);
+        }
+    }
+}

@@ -1,0 +1,48 @@
+int   u_divs = 28;
+int   v_divs = 14;
+float R = chf("%C%barrierRadius");
+float H = chf("%C%barrierHeight");
+float energy = chf("%C%barrierEnergy");
+vector col = chv("%C%colBarrier");
+
+for (int v = 0; v < v_divs; v++) {
+    float phi1 = float(v) / float(v_divs) * (M_PI * 0.5);
+    float phi2 = float(v + 1) / float(v_divs) * (M_PI * 0.5);
+    
+    float y1 = sin(phi1) * H;
+    float y2 = sin(phi2) * H;
+    float r1 = cos(phi1) * R;
+    float r2 = cos(phi2) * R;
+    
+    for (int u = 0; u < u_divs; u++) {
+        float theta1 = float(u) / float(u_divs) * M_PI * 2.0;
+        float theta2 = float(u + 1) / float(u_divs) * M_PI * 2.0;
+        
+        int p1 = addpoint(0, set(cos(theta1) * r1, y1, sin(theta1) * r1));
+        int p2 = addpoint(0, set(cos(theta2) * r1, y1, sin(theta2) * r1));
+        int p3 = addpoint(0, set(cos(theta2) * r2, y2, sin(theta2) * r2));
+        int p4 = addpoint(0, set(cos(theta1) * r2, y2, sin(theta1) * r2));
+        
+        vector final_col = col * lerp(0.8, 1.2, energy);
+        setpointattrib(0, "Cd", p1, final_col, "set");
+        setpointattrib(0, "Cd", p2, final_col, "set");
+        setpointattrib(0, "Cd", p3, final_col, "set");
+        setpointattrib(0, "Cd", p4, final_col, "set");
+        
+        setpointattrib(0, "part_id", p1, 2, "set");
+        setpointattrib(0, "part_id", p2, 2, "set");
+        setpointattrib(0, "part_id", p3, 2, "set");
+        setpointattrib(0, "part_id", p4, 2, "set");
+        
+        setpointattrib(0, "Alpha", p1, energy, "set");
+        setpointattrib(0, "Alpha", p2, energy, "set");
+        setpointattrib(0, "Alpha", p3, energy, "set");
+        setpointattrib(0, "Alpha", p4, energy, "set");
+        
+        int quad = addprim(0, "poly");
+        addvertex(0, quad, p1);
+        addvertex(0, quad, p2);
+        addvertex(0, quad, p3);
+        addvertex(0, quad, p4);
+    }
+}

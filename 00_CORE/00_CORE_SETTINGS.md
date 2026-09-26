@@ -32,8 +32,12 @@
 
 | Attribute Name | Data Type | Default Value | PCG Scope | Description |
 | :--- | :--- | :--- | :--- | :--- |
+| `City_ID` | `FName` | `ISTRORIGAN` | Global | ชื่อมหานครต้นแบบแห่งการศึกษา Year 4205 |
+| `World_Era_Year` | `int32` | `4205` | Global | ยุคสมัยหลังมหาอุทกภัย 17 รัฐ |
+| `Council_Count` | `int32` | `10` | Global | จำนวนสมาชิกสภาสูงผู้ปกครองเมือง (Council of Ten) |
 | `Global_Master_Seed` | `int64` | `133742` | Global | เมล็ดพันธุ์หลักในการสุ่มทั้งโลก |
 | `World_Scale_Factor` | `float` | `1.0` | Global | ตัวคูณขนาดสัดส่วนภาพรวมของเมือง |
 | `Sea_Level_Z` | `float` | `0.0` | Global | ระดับความสูงผิวน้ำทะเลอ้างอิง (cm) |
-| `Max_Petal_Count` | `int32` | `6` | Global | จำนวนกลีบเมืองรอบแกนกลาง |
+| `Max_Petal_Count` | `int32` | `8` | Global | จำนวน 8 กลีบวิทยาเขตอิสระ |
+| `Submersion_Cycle_Per_Year` | `int32` | `2` | Global | ความถี่การดำน้ำเพื่อการศึกษาใต้สมุทร (ปีละ 2 ครั้ง) |
 | `Debug_Draw_Lattice` | `bool` | `false` | Debug | แสดงเส้น Grid เชิงขั้ว (Polar Lattice) |

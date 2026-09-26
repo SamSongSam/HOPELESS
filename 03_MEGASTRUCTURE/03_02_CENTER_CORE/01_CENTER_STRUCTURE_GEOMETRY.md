@@ -1,7 +1,12 @@
-# 03.02.01 - Center Structure, Cone & Restrictions
+# 03.02.01 - Center Structure, Cone & Restrictions (Istrorigan Citadel)
 
-## Purpose & PCG Implementation
-นิยามรูปทรงเรขาคณิตหลักของแกนกลางเมือง (`FC_Flower_Center`), โคนศูนย์กลาง (`FC_Flower_Cone`), โครงสร้างรับแรงหลัก (`FC_Center_Structure`), จุดเชื่อมต่อกลีบ (`FC_Center_Petal_Interface`), การกระจายกลีบ (`FC_Center_Petal_Distribution`), ระยะปลอดภัย (`FC_Center_Petal_Clearance`), และข้อจำกัดความสูง/โซนห้ามสร้างอาคาร (`FC_Center_Building_Restriction`)
+## World Canon & Purpose (Era: 4205)
+แกนกลางของมหานคร **ISTRORIGAN** คือศูนย์บัญชาการสูงสุดของโลกยุคหลังมหาอุทกภัย:
+- **Council of Ten Apex Spire**: ยอดหอคอยเกลียวสูง 180 เมตร เป็นที่ตั้งของห้องประชุมสภาสูง 10 คน (The Council of Ten) และศูนย์บัญชาการวิกฤตการณ์โลก
+- **Barrier Generator Core**: เครื่องกำเนิดสนามพลังงานม่านบาเรียรังผึ้ง ณ กึ่งกลางโครงสร้างเชื่อมต่อกับเสาเกสรทองคำ 70 ต้น
+- **8-Petal Interface & Distribution**: จุดกระจายแรงและช่องต่อเชื่อมสู่กลีบวิทยาเขตทั้ง 8 กลีบ (ทำมุมช่องละ 45 องศา พร้อมร่องน้ำนิรภัยคั่นกลาง)
+- **Central Grand Assembly Plaza**: ลานอธิการบดีและลานเปลี่ยนถ่ายการคมนาคมเชื่อมต่อไปยังทั้ง 8 คณะ
+- **Building Restrictions**: เขตควบคุมความสูงเพื่อไม่ให้บดบังแนวรัศมีการฉายม่านพลังงานบาเรีย
 
 ---
 

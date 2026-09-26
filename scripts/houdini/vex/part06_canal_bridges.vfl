@@ -1,0 +1,88 @@
+int   numPetals = chi("%C%petalCount");
+float bridgeR   = chf("%C%bridgeRadialDist");
+float ringRad   = chf("%C%tubeRingRadius");
+float tubeThick = chf("%C%tubeThickness");
+
+vector colAlloy = chv("%C%colBridges");
+vector colGlass = set(0.12, 0.75, 0.90);
+vector colTrack = set(0.20, 0.22, 0.26);
+
+int ring_segs = 24;
+int tube_segs = 16;
+
+for (int p = 0; p < numPetals; p++) {
+    // Bridges between all petals EXCEPT wide front canal
+    float a1 = float(p) / float(numPetals) * M_PI * 2.0;
+    float a2 = float(p + 1) / float(numPetals) * M_PI * 2.0;
+    
+    float mid_angle = (a1 + a2) * 0.5;
+    vector center = set(sin(mid_angle) * bridgeR, 44.0, cos(mid_angle) * bridgeR);
+    
+    vector span_dir = normalize(set(sin(a2) - sin(a1), 0.0, cos(a2) - cos(a1)));
+    vector up_dir   = set(0, 1, 0);
+    vector fwd_dir  = normalize(cross(span_dir, up_dir));
+    
+    // =========================================================================
+    // 1. TUBULAR CYLINDRICAL TRANSIT PORTAL WITH GLASS OBSERVATION RING
+    // =========================================================================
+    for (int s = 0; s < tube_segs; s++) {
+        float t1 = (float(s) / float(tube_segs) - 0.5) * 45.0; // Spans 45m water gap
+        float t2 = (float(s + 1) / float(tube_segs) - 0.5) * 45.0;
+        
+        vector c1 = center + span_dir * t1;
+        vector c2 = center + span_dir * t2;
+        
+        for (int r = 0; r < ring_segs; r++) {
+            float th1 = float(r) / float(ring_segs) * M_PI * 2.0;
+            float th2 = float(r + 1) / float(ring_segs) * M_PI * 2.0;
+            
+            vector r_off1 = (up_dir * cos(th1) + fwd_dir * sin(th1)) * ringRad;
+            vector r_off2 = (up_dir * cos(th2) + fwd_dir * sin(th2)) * ringRad;
+            
+            int pt1 = addpoint(0, c1 + r_off1);
+            int pt2 = addpoint(0, c2 + r_off1);
+            int pt3 = addpoint(0, c2 + r_off2);
+            int pt4 = addpoint(0, c1 + r_off2);
+            
+            // Equatorial band is panoramic glass gallery
+            int is_equator = (abs(cos(th1)) < 0.45);
+            vector ringCol = is_equator ? colGlass : colAlloy;
+            
+            setpointattrib(0, "Cd", pt1, ringCol, "set");
+            setpointattrib(0, "Cd", pt2, ringCol, "set");
+            setpointattrib(0, "Cd", pt3, ringCol, "set");
+            setpointattrib(0, "Cd", pt4, ringCol, "set");
+            
+            if (is_equator) {
+                setpointattrib(0, "Alpha", pt1, 0.40, "set");
+                setpointattrib(0, "Alpha", pt2, 0.40, "set");
+                setpointattrib(0, "Alpha", pt3, 0.40, "set");
+                setpointattrib(0, "Alpha", pt4, 0.40, "set");
+            }
+            
+            setpointattrib(0, "part_id", pt1, 6, "set");
+            setpointattrib(0, "part_id", pt2, 6, "set");
+            setpointattrib(0, "part_id", pt3, 6, "set");
+            setpointattrib(0, "part_id", pt4, 6, "set");
+            
+            int prim = addprim(0, "poly");
+            addvertex(0, prim, pt1); addvertex(0, prim, pt2); addvertex(0, prim, pt3); addvertex(0, prim, pt4);
+        }
+    }
+    
+    // =========================================================================
+    // 2. INTERNAL MAGLEV RAIL BED (Level Y=40m)
+    // =========================================================================
+    float trackHalfW = ringRad * 0.65;
+    vector tr1 = center - span_dir * 22.5 - fwd_dir * trackHalfW - up_dir * (ringRad * 0.45);
+    vector tr2 = center + span_dir * 22.5 - fwd_dir * trackHalfW - up_dir * (ringRad * 0.45);
+    vector tr3 = center + span_dir * 22.5 + fwd_dir * trackHalfW - up_dir * (ringRad * 0.45);
+    vector tr4 = center - span_dir * 22.5 + fwd_dir * trackHalfW - up_dir * (ringRad * 0.45);
+    
+    int tpt1 = addpoint(0, tr1); int tpt2 = addpoint(0, tr2);
+    int tpt3 = addpoint(0, tr3); int tpt4 = addpoint(0, tr4);
+    setpointattrib(0, "Cd", tpt1, colTrack, "set"); setpointattrib(0, "Cd", tpt2, colTrack, "set");
+    setpointattrib(0, "Cd", tpt3, colTrack, "set"); setpointattrib(0, "Cd", tpt4, colTrack, "set");
+    int tr_q = addprim(0, "poly");
+    addvertex(0, tr_q, tpt1); addvertex(0, tr_q, tpt2); addvertex(0, tr_q, tpt3); addvertex(0, tr_q, tpt4);
+}

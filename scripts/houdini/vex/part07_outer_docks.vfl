@@ -1,0 +1,172 @@
+int   numPetals   = chi("%C%petalCount");
+float rLen        = chf("%C%rampLength");
+float rW          = chf("%C%rampWidth");
+float sLen        = chf("%C%spineLength");
+float sW          = chf("%C%spineWidth");
+int   fingerSlips = chi("%C%fingerSlipCount");
+
+vector colPontoon = chv("%C%colDocks");
+vector colWood    = set(0.35, 0.28, 0.22); // Teak composite dock planks
+vector colRamp    = set(0.85, 0.88, 0.92);
+vector colYacht   = set(0.96, 0.96, 0.98); // Gleaming white yacht hull
+vector colGlass   = set(0.12, 0.15, 0.20); // Tinted yacht canopy
+
+for (int p = 0; p < numPetals; p++) {
+    // Dock placed in natural water nook on outer flank
+    float angle = (float(p) + 0.40) / float(numPetals) * M_PI * 2.0;
+    float startR = 1040.0;
+    
+    // Hinge on petal coaming (Y=24m) down to floating water surface (Y=1.6m)
+    vector hinge = set(cos(angle) * startR, 24.0, sin(angle) * startR);
+    vector waterTouch = set(cos(angle) * (startR + rLen), 1.6, sin(angle) * (startR + rLen));
+    
+    vector fwd = normalize(waterTouch - hinge);
+    vector side = set(-fwd.z, 0.0, fwd.x) * (rW * 0.5);
+    
+    // =========================================================================
+    // 1. ARCHED GANGWAY RAMP WITH ARCHITECTURAL RAILINGS
+    // =========================================================================
+    int rampDivs = 8;
+    for (int r = 0; r < rampDivs; r++) {
+        float t1 = float(r) / float(rampDivs);
+        float t2 = float(r + 1) / float(rampDivs);
+        
+        // Slight architectural upward arch along gangway
+        float arch1 = sin(t1 * M_PI) * 3.5;
+        float arch2 = sin(t2 * M_PI) * 3.5;
+        
+        vector p1 = lerp(hinge, waterTouch, t1) + set(0, arch1, 0);
+        vector p2 = lerp(hinge, waterTouch, t2) + set(0, arch2, 0);
+        
+        // Deck surface
+        int pt1 = addpoint(0, p1 - side);
+        int pt2 = addpoint(0, p2 - side);
+        int pt3 = addpoint(0, p2 + side);
+        int pt4 = addpoint(0, p1 + side);
+        
+        setpointattrib(0, "Cd", pt1, colRamp, "set");
+        setpointattrib(0, "Cd", pt2, colRamp, "set");
+        setpointattrib(0, "Cd", pt3, colRamp, "set");
+        setpointattrib(0, "Cd", pt4, colRamp, "set");
+        
+        int rq = addprim(0, "poly");
+        addvertex(0, rq, pt1); addvertex(0, rq, pt2); addvertex(0, rq, pt3); addvertex(0, rq, pt4);
+        
+        // Safety Railings (Height 1.4m)
+        int r_l1 = addpoint(0, p1 - side + set(0, 1.4, 0));
+        int r_l2 = addpoint(0, p2 - side + set(0, 1.4, 0));
+        int r_r1 = addpoint(0, p1 + side + set(0, 1.4, 0));
+        int r_r2 = addpoint(0, p2 + side + set(0, 1.4, 0));
+        
+        setpointattrib(0, "Cd", r_l1, set(0.4, 0.4, 0.45), "set");
+        setpointattrib(0, "Cd", r_l2, set(0.4, 0.4, 0.45), "set");
+        setpointattrib(0, "Cd", r_r1, set(0.4, 0.4, 0.45), "set");
+        setpointattrib(0, "Cd", r_r2, set(0.4, 0.4, 0.45), "set");
+        
+        int rl = addprim(0, "polyline"); addvertex(0, rl, r_l1); addvertex(0, rl, r_l2);
+        int rr = addprim(0, "polyline"); addvertex(0, rr, r_r1); addvertex(0, rr, r_r2);
+    }
+    
+    // =========================================================================
+    // 2. FLOATING PONTOON MAIN SPINE (Resting in water)
+    // =========================================================================
+    vector spineEnd = waterTouch + fwd * sLen;
+    vector spineSide = set(-fwd.z, 0.0, fwd.x) * (sW * 0.5);
+    
+    int sp1 = addpoint(0, waterTouch - spineSide);
+    int sp2 = addpoint(0, spineEnd - spineSide);
+    int sp3 = addpoint(0, spineEnd + spineSide);
+    int sp4 = addpoint(0, waterTouch + spineSide);
+    
+    setpointattrib(0, "Cd", sp1, colWood, "set");
+    setpointattrib(0, "Cd", sp2, colWood, "set");
+    setpointattrib(0, "Cd", sp3, colWood, "set");
+    setpointattrib(0, "Cd", sp4, colWood, "set");
+    
+    int spine_prim = addprim(0, "poly");
+    addvertex(0, spine_prim, sp1);
+    addvertex(0, spine_prim, sp2);
+    addvertex(0, spine_prim, sp3);
+    addvertex(0, spine_prim, sp4);
+    
+    // Chamfered flotation hull underneath pontoon
+    int uh1 = addpoint(0, waterTouch - spineSide * 0.9 - set(0, 1.8, 0));
+    int uh2 = addpoint(0, spineEnd - spineSide * 0.9 - set(0, 1.8, 0));
+    int uh3 = addpoint(0, spineEnd + spineSide * 0.9 - set(0, 1.8, 0));
+    int uh4 = addpoint(0, waterTouch + spineSide * 0.9 - set(0, 1.8, 0));
+    setpointattrib(0, "Cd", uh1, colPontoon, "set");
+    setpointattrib(0, "Cd", uh2, colPontoon, "set");
+    setpointattrib(0, "Cd", uh3, colPontoon, "set");
+    setpointattrib(0, "Cd", uh4, colPontoon, "set");
+    int u_prim = addprim(0, "poly");
+    addvertex(0, u_prim, uh4); addvertex(0, u_prim, uh3); addvertex(0, u_prim, uh2); addvertex(0, u_prim, uh1);
+    
+    // =========================================================================
+    // 3. LATERAL FINGER PIERS & DETAILED LUXURY YACHTS
+    // =========================================================================
+    for (int fs = 1; fs <= fingerSlips; fs++) {
+        float f_dist = float(fs) / float(fingerSlips + 1) * sLen;
+        vector root_left  = waterTouch + fwd * f_dist - spineSide;
+        vector root_right = waterTouch + fwd * f_dist + spineSide;
+        
+        float fingerW = 3.5;
+        float fingerL = 34.0;
+        vector f_fwd = set(-fwd.z, 0.0, fwd.x); // perpendicular to spine
+        
+        // Left finger pier
+        vector fl_end = root_left - f_fwd * fingerL;
+        int fl1 = addpoint(0, root_left - fwd * (fingerW * 0.5));
+        int fl2 = addpoint(0, fl_end - fwd * (fingerW * 0.5));
+        int fl3 = addpoint(0, fl_end + fwd * (fingerW * 0.5));
+        int fl4 = addpoint(0, root_left + fwd * (fingerW * 0.5));
+        setpointattrib(0, "Cd", fl1, colWood, "set");
+        setpointattrib(0, "Cd", fl2, colWood, "set");
+        setpointattrib(0, "Cd", fl3, colWood, "set");
+        setpointattrib(0, "Cd", fl4, colWood, "set");
+        int fl_q = addprim(0, "poly");
+        addvertex(0, fl_q, fl1); addvertex(0, fl_q, fl2); addvertex(0, fl_q, fl3); addvertex(0, fl_q, fl4);
+        
+        // Right finger pier
+        vector fr_end = root_right + f_fwd * fingerL;
+        int fr1 = addpoint(0, root_right - fwd * (fingerW * 0.5));
+        int fr2 = addpoint(0, fr_end - fwd * (fingerW * 0.5));
+        int fr3 = addpoint(0, fr_end + fwd * (fingerW * 0.5));
+        int fr4 = addpoint(0, root_right + fwd * (fingerW * 0.5));
+        setpointattrib(0, "Cd", fr1, colWood, "set");
+        setpointattrib(0, "Cd", fr2, colWood, "set");
+        setpointattrib(0, "Cd", fr3, colWood, "set");
+        setpointattrib(0, "Cd", fr4, colWood, "set");
+        int fr_q = addprim(0, "poly");
+        addvertex(0, fr_q, fr4); addvertex(0, fr_q, fr3); addvertex(0, fr_q, fr2); addvertex(0, fr_q, fr1);
+        
+        // --- 4. STREAMLINED FUTURISTIC LUXURY YACHT IN SLIP ---
+        vector yCenter = root_left - f_fwd * (fingerL * 0.5) + fwd * 7.5;
+        float yLen = 22.0;
+        float yBeam = 5.8;
+        
+        vector bow = yCenter - f_fwd * (yLen * 0.5) + set(0, 1.2, 0);
+        vector sternL = yCenter + f_fwd * (yLen * 0.5) - fwd * (yBeam * 0.5) + set(0, 1.2, 0);
+        vector sternR = yCenter + f_fwd * (yLen * 0.5) + fwd * (yBeam * 0.5) + set(0, 1.2, 0);
+        vector cabinTop = yCenter + set(0, 3.2, 0);
+        
+        int y_bow   = addpoint(0, bow);
+        int y_stL   = addpoint(0, sternL);
+        int y_stR   = addpoint(0, sternR);
+        int y_cabin = addpoint(0, cabinTop);
+        
+        setpointattrib(0, "Cd", y_bow, colYacht, "set");
+        setpointattrib(0, "Cd", y_stL, colYacht, "set");
+        setpointattrib(0, "Cd", y_stR, colYacht, "set");
+        setpointattrib(0, "Cd", y_cabin, colGlass, "set");
+        
+        // Yacht Hull Deck
+        int y_deck = addprim(0, "poly");
+        addvertex(0, y_deck, y_bow); addvertex(0, y_deck, y_stL); addvertex(0, y_deck, y_stR);
+        
+        // Yacht Cabin Windows
+        int y_w1 = addprim(0, "poly");
+        addvertex(0, y_w1, y_bow); addvertex(0, y_w1, y_cabin); addvertex(0, y_w1, y_stL);
+        int y_w2 = addprim(0, "poly");
+        addvertex(0, y_w2, y_bow); addvertex(0, y_w2, y_stR); addvertex(0, y_w2, y_cabin);
+    }
+}
