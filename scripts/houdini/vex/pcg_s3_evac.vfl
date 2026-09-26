@@ -108,7 +108,9 @@ for (int pr = 0; pr < nprim; pr++) {
     int vs[] = primpoints(0, pr);
     for (int i = 1; i < len(vs); i++) {
         int a = vs[i - 1], b = vs[i];
-        float w = distance(point(0, "P", a), point(0, "P", b));
+        vector Pa = point(0, "P", a);
+        vector Pb = point(0, "P", b);
+        float w = distance(Pa, Pb);
         nbr[off[a] + fill[a]] = b; wts[off[a] + fill[a]] = w; fill[a] += 1;
         nbr[off[b] + fill[b]] = a; wts[off[b] + fill[b]] = w; fill[b] += 1;
     }

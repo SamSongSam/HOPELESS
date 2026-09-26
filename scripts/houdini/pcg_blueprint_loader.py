@@ -18,6 +18,9 @@
 
 LOADER_CODE = r'''
 import os, re, json, hou
+# no literal backtick anywhere in this code: Houdini expands backticks in the
+# Python SOP's code parm as hscript expressions
+BT = chr(96)
 
 node = hou.pwd()
 geo = node.geometry()
@@ -39,13 +42,13 @@ if not os.path.exists(zon_path):
     raise hou.NodeError("Blueprint zoning table not found: %s  (check blueprintRoot)" % zon_path)
 text = open(zon_path, encoding="utf-8").read()
 for line in text.splitlines():
-    m = re.match(r"\s*\|\s*`(ZONE_[A-Z_]+)`\s*\|(.*)", line)
+    m = re.match(r"\s*\|\s*" + BT + r"(ZONE_[A-Z_]+)" + BT + r"\s*\|(.*)", line)
     if not m:
         continue
     cells = [c.strip() for c in m.group(2).split("|")]
     if len(cells) < 7:
         continue
-    dtype = cells[0].strip("` ")
+    dtype = cells[0].strip(BT + " ")
     sector = cells[2]
     pm = re.search(r"Petal\s+(\d+)", sector)
     if pm:
@@ -59,12 +62,12 @@ for line in text.splitlines():
     rmin, rmax = span(cells[3])
     zmin, zmax = span(cells[4])
     buoy = num(re.sub(r"\(.*?\)", "", cells[5]))
-    tags = [t.strip() for t in cells[6].strip("` ").replace("`", "").split(",") if t.strip()]
+    tags = [t.strip() for t in cells[6].strip(BT + " ").replace(BT, "").split(",") if t.strip()]
     rows.append(dict(name=m.group(1), dtype=dtype, display=cells[1], petal=petal,
                      rmin=rmin, rmax=rmax, zmin=zmin, zmax=zmax, buoy=buoy, tags=tags))
 
 js = {}
-for b in re.findall(r"```json\s*(.*?)```", text, re.S):
+for b in re.findall(BT * 3 + r"json\s*(.*?)" + BT * 3, text, re.S):
     try:
         for r in json.loads(b):
             js[r["Name"]] = r

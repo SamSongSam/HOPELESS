@@ -59,6 +59,12 @@ HDA มี parm 95 ตัว ถูกอ่านจริง 75 ตัว — 
 - `useHighResParts` (ค่าเริ่มต้น ON) โหลด `output/parts/*.obj` ซึ่ง export จากสูตรเดียวกันที่ความละเอียดเท่าเดิม — ไม่ได้ high-res
 - OBJ เหล่านี้เป็น **Z-up** แต่ Houdini เป็น Y-up → ทุก part ล้มตะแคง 90° (โดมกลายเป็นชาม, วงแหวนใต้น้ำกลายเป็นหอตั้งขึ้น) ขณะที่ชั้น CSV สลับแกนถูก → วางไม่ตรงกัน
 
+### 1.5b ทั้งเมืองไม่มี geometry ออกที่ OUT เลย (syntax error)
+- `vex/part14_bulkhead_gates.vfl:77` ใช้ array 2 มิติ (`int faces[][]`) ซึ่ง VEX ไม่รองรับ → wrangle compile ไม่ผ่าน
+- error ลามผ่าน `city_merge` → `OUT` → **OUT ว่างเปล่า (0 จุด)** — นี่คือ "OUT 77" ที่เจ้าของเห็น
+- แปลว่าโค้ดชุดนี้ **ไม่เคยถูก cook ผ่านใน Houdini เลย** ก่อนส่งมอบว่า "เสร็จ"
+- แก้แล้ว (flat index array) → OUT = 262,096 จุด
+
 ### 1.6 Builder ลบฉากทุกครั้งที่รัน
 `build_istrorigan_master.py` เรียก `old.destroy()` ทุกครั้ง → ค่าที่เจ้าของปรับใน .hip หายหมด (ขัดข้อ 0.1)
 
@@ -76,9 +82,19 @@ HDA มี parm 95 ตัว ถูกอ่านจริง 75 ตัว — 
 
 ---
 
-## 2. สิ่งที่แก้แล้ว (Claude, 2026-09-26) — ยัง **ไม่เคยรันใน Houdini จริง**
+## 2. สิ่งที่แก้แล้ว (Claude, 2026-09-26) — **cook ผ่านใน Houdini 22.0.429 แล้ว**
 
-ทุกข้อด้านล่างตรวจด้วย Python mirror (พอร์ต VEX บรรทัดต่อบรรทัด) เท่านั้น **ต้องรันใน Houdini เพื่อยืนยัน**
+หลักฐาน (hython 22.0.429, `output/istrorigan_city.hip` หลัง `update_in_place.py` + save แล้วโหลดใหม่, `scripts/houdini/cook_report.py`):
+
+| Node | ผล |
+|---|---|
+| `sys03_petal_normals` | 30,912 pts / 30,736 prims · `min_clearance_m` 51.6 · guard 1.000 |
+| `pcg_s1_polar_lattice` / `pcg_s2_zoning` | 108,110 pts · build candidates 22,313 |
+| `pcg_s3_evac` | 6,334 nodes / 259 edges · 16 bridges · max evac 1,184 m |
+| `OUT` | **262,096 pts / 90,513 prims** · nodes with errors: **0** |
+
+(เหลือ warning เดียว: attribute mismatch ใน `city_merge` — ไม่กระทบผล)
+ตัวเลขตรงกับ Python mirror ทุกค่า ยกเว้นจำนวน build candidate (random generator ต่างกัน)
 
 | งาน | ไฟล์ | สถานะ |
 |---|---|---|
@@ -102,7 +118,7 @@ HDA มี parm 95 ตัว ถูกอ่านจริง 75 ตัว — 
 
 ## 3. งานที่ยังค้าง (เรียงลำดับ)
 
-1. **รัน `update_in_place.py` ใน Houdini** แก้ error VEX ถ้ามี — ห้ามทำงานต่อบนโค้ดที่ยังไม่เคย cook ผ่าน
+1. ~~รัน `update_in_place.py` ใน Houdini~~ ✅ ผ่านแล้ว — ทุกครั้งที่แก้ต้องรัน `cook_report.py` ซ้ำและแนบผล
 2. **Stage 4 Socket Grammar** — วาง archetype จาก `02_DATA_TABLE_ASSET_ARCHETYPES` บน `build_candidate`, ตรวจ `03_DATA_TABLE_SOCKET_MATRIX`, clearance sweep
 3. **Stage 5 Instancing** — instance points (`unreal_instance`, LOD/Nanite) แทน `py_buildings` / `py_scatter`
 4. **ต่อ part อื่นอีก 13 ตัว** ให้อ่าน `pf_*` / parm ของ part อื่น แทนค่า hardcode ในข้อ 1.4 (bulkhead ที่ root, docks ที่ปลายกลีบจริง, stamen ตาม receptacle, สะพาน part06 ใช้ bridge curve จาก Stage 3)

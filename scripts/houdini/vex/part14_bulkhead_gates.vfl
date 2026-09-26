@@ -64,19 +64,12 @@ for (int i = 0; i < 8; i++) {
             setpointattrib(0, "part_id", p, 14, "set");
         }
 
-        // 6 box faces
-        int faces[][] = array(
-            array(pts[0], pts[1], pts[2], pts[3]),
-            array(pts[7], pts[6], pts[5], pts[4]),
-            array(pts[0], pts[4], pts[5], pts[1]),
-            array(pts[1], pts[5], pts[6], pts[2]),
-            array(pts[2], pts[6], pts[7], pts[3]),
-            array(pts[3], pts[7], pts[4], pts[0])
-        );
-
-        foreach (int f_pts[]; faces) {
+        // 6 box faces (VEX has no 2D arrays: flat corner indices, 4 per face)
+        int faceIdx[] = array(0, 1, 2, 3,  7, 6, 5, 4,  0, 4, 5, 1,
+                              1, 5, 6, 2,  2, 6, 7, 3,  3, 7, 4, 0);
+        for (int f = 0; f < 6; f++) {
             int pr = addprim(0, "poly");
-            foreach (int pt; f_pts) { addvertex(0, pr, pt); }
+            for (int k = 0; k < 4; k++) addvertex(0, pr, pts[faceIdx[f * 4 + k]]);
         }
     }
 

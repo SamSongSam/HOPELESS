@@ -63,11 +63,27 @@ def _read_legacy(node):
     return kept
 
 
+def _tab_of(ptg, member_parm):
+    """Tab folder that holds member_parm. Houdini renames tab folders on save
+    (tab_petals -> tab_master_3 ...), so tabs are located by a parm inside them."""
+    hou = get_hou()
+    if ptg.find(member_parm) is None:
+        return None
+    f = ptg.containingFolder(member_parm)
+    while f is not None and f.folderType() != hou.folderType.Tabs:
+        try:
+            f = ptg.containingFolder(f)
+        except hou.OperationFailed:
+            return None
+    return f
+
+
 def _swap_petal_tab(node):
     ptg = node.parmTemplateGroup()
     new_tab = p03.get_parm_templates()
-    if ptg.find("tab_petals") is not None:
-        ptg.replace("tab_petals", new_tab)
+    old_tab = _tab_of(ptg, "petalCount")
+    if old_tab is not None:
+        ptg.replace(old_tab, new_tab)
     else:
         ptg.append(new_tab)
     # parms the petal VEX needs from other tabs, in case this scene predates them
@@ -81,12 +97,34 @@ def _swap_petal_tab(node):
         if ptg.find(tmpl.name()) is None:
             ptg.append(tmpl)
     pcg_tab = pcg_stages.get_parm_templates()
-    if ptg.find("tab_pcg") is not None:
-        ptg.replace("tab_pcg", pcg_tab)
+    old_pcg = _tab_of(ptg, "blueprintRoot")
+    if old_pcg is not None:
+        ptg.replace(old_pcg, pcg_tab)
     else:
         ptg.append(pcg_tab)
     node.setParmTemplateGroup(ptg)          # same-name parms keep their values
     p03.setup_expressions(node)
+
+
+def _refresh_part_snippets(node):
+    """Push the current vex/*.vfl code into every existing part wrangle, so fixes to
+    any part (not only petals / PCG) reach the scene. partNN_name.vfl -> sysNN_name."""
+    vex_dir = os.path.join(PACKAGE_DIR, "vex")
+    extra = {"guide_network.vfl": "guide_network_gen", "gr_material.vfl": "gr_material_attribs",
+             "instance_attribs.vfl": "instance_attribs"}
+    n_done = 0
+    for fn in sorted(os.listdir(vex_dir)):
+        m = re.match(r"part(\d\d)_(\w+)\.vfl$", fn)
+        target = ("sys%s_%s" % (m.group(1), m.group(2))) if m else extra.get(fn)
+        w = node.node(target) if target else None
+        if w is None or w.parm("snippet") is None:
+            continue
+        code = load_vex(fn).replace("%C%", CREF)
+        if w.parm("snippet").unexpandedString() != code:
+            w.parm("snippet").set(code)
+            n_done += 1
+    if n_done:
+        print("[*] refreshed VEX in %d part wrangles from vex/*.vfl" % n_done)
 
 
 def _upgrade_network(node):
@@ -229,6 +267,7 @@ def upgrade(node_path=NODE_PATH, save_path=None):
         for manual, value in kept.items():
             node.parm(manual).set(value)
 
+    _refresh_part_snippets(node)
     _upgrade_network(node)
     _install_pcg(node)
     _repath(node)
