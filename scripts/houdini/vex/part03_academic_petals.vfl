@@ -1,0 +1,372 @@
+// =============================================================================
+// PART 03 - ACADEMIC PETAL HULLS (Detail wrangle, runs once)
+// Lotus-grade petal generator:
+//   plan shape (profile / skew / base narrow / tip sharpness)
+//   hull cross-section (keel, bilge, flare, rim, magenta reveal, inner wall, cup)
+//   spine curve + tip curl, hinge pitch driven by openAmount / submergeAmount
+//   per-petal jitter + multiparm overrides
+//   per-side 45m clearance clamp + 3D collision guard on the final pose
+// Local frame before posing: lateral = X, up = Y, radial = Z. Petal p sits at
+// azimuth a_p; +X side faces petal p+1.
+// =============================================================================
+
+// ---- pose one section point -------------------------------------------------
+// x: lateral, y: height above spine, cr/cy/th: spine offset + angle at this ring
+// pitch: hinge rotation (rad, + lifts the bow), hinge at (rootR, y=0)
+vector posept(float x, y, rootR, cr, cy, th, pitch; matrix3 rot)
+{
+    float dr = cr - y * sin(th);
+    float up = cy + y * cos(th);
+    float dr2 = dr * cos(pitch) - up * sin(pitch);
+    float up2 = dr * sin(pitch) + up * cos(pitch);
+    return set(x, up2, rootR + dr2) * rot;
+}
+
+// ---- smooth minimum (keeps clamped outlines crease-free) --------------------
+float smin(float a, b, k)
+{
+    return -k * log(exp(-a / k) + exp(-b / k));
+}
+
+// ---- half-section for ring k, side sd: inset from beam line (px) + height (py) --
+// px < 0 marks the shared centreline points (keel centre, deck centre)
+void section(int k, sd; float Wside[], Hring[], Dring[], Kring[], Rw[];
+             float keelV, bilge, flare, flareH, rimRound, revH, revD, wallRun, cupD;
+             float px[], py[])
+{
+    float w  = Wside[k * 2 + sd];
+    float rw = Rw[k * 2 + sd];
+    float H  = Hring[k];
+    float dY = Dring[k];
+    float kD = Kring[k];
+    float wr = min(wallRun, w * 0.10);
+    px = array(
+        -1.0,                               // P0 keel centre
+        w * 0.45,                           // P1 flat bottom
+        w * lerp(0.05, 0.22, bilge),        // P2 bilge turn
+        w * flare,                          // P3 waterline chine
+        0.0,                                // P4 max beam
+        rw * 0.12,                          // P5 rim outer shoulder
+        rw * 0.50,                          // P6 rim crest
+        rw * 0.92,                          // P7 rim inner shoulder
+        rw + revD,                          // P8 reveal top
+        rw + 2.0 * revD,                    // P9 reveal bottom
+        rw + 2.0 * revD + wr,               // P10 inner wall foot
+        rw + 2.0 * revD + 2.0 * wr,         // P11 basin edge
+        -1.0                                // P12 deck centre
+    );
+    py = array(
+        -kD,
+        -kD * (1.0 - 0.6 * keelV),
+        -kD * lerp(0.25, 0.60, bilge),
+        1.5,
+        H * flareH,
+        H * (1.0 - 0.10 * rimRound),
+        H,
+        H * (1.0 - 0.08 * rimRound),
+        H - 2.0,
+        H - 2.0 - revH,
+        dY + 3.0,
+        dY,
+        dY - cupD
+    );
+}
+
+// ---- smallest 3D gap between neighbouring petals at a given pitch scale -------
+// samples the max-beam line and the rim crest on both sides of every petal
+float min_gap(float scale; int N, RN, stride; float rootR;
+              float pAz[], pPitch[], ths[], crs[], cys[], Wside[], Hring[], Rw[];
+              float flareH, basePitch, pitchCap)
+{
+    vector pts[];
+    int cnt[];
+    resize(cnt, N + 1);
+    for (int p = 0; p < N; p++) {
+        cnt[p] = len(pts);
+        matrix3 rot = 1;
+        rotate(rot, pAz[p], set(0, 1, 0));
+        float pitch = clamp((basePitch + pPitch[p]) * scale, 0.0, pitchCap);
+        for (int iu = 0; iu < RN; iu += stride) {
+            int k = p * RN + iu;
+            for (int sd = 0; sd < 2; sd++) {
+                float sg = (sd == 0) ? 1.0 : -1.0;
+                float w = Wside[k * 2 + sd];
+                append(pts, posept(sg * w, Hring[k] * flareH, rootR, crs[k], cys[k], ths[k], pitch, rot));
+                append(pts, posept(sg * (w - Rw[k * 2 + sd] * 0.5), Hring[k], rootR, crs[k], cys[k], ths[k], pitch, rot));
+            }
+        }
+    }
+    cnt[N] = len(pts);
+    float best = 1e9;
+    for (int p = 0; p < N; p++) {
+        int q = (p + 1) % N;
+        for (int i = cnt[p]; i < cnt[p + 1]; i++)
+            for (int j = cnt[q]; j < cnt[q + 1]; j++)
+                best = min(best, distance(pts[i], pts[j]));
+    }
+    return best;
+}
+
+// ---- parameters ---------------------------------------------------------------
+int   N         = chi("%C%petalCount");
+float rootR     = chf("%C%petalRootRadius");
+float Lbase     = chf("%C%petalLength");
+float Wbase     = chf("%C%petalWidthMax");
+float peakPos   = chf("%C%petalPeakPos");
+float wProf     = chf("%C%petalWidthProfile");
+float baseNar   = chf("%C%petalBaseNarrow");
+float tipSharp  = chf("%C%petalTipSharpness");
+float minClear  = chf("%C%minWaterwayClearance");
+
+float deckY     = chf("%C%deckHeight");
+float rimHbase  = chf("%C%petalRimHeight");      // hidden, Auto/Manual resolved
+float rimWbase  = chf("%C%petalRimWidth");       // hidden, Auto/Manual resolved
+float keelD     = chf("%C%keelDepth");           // hidden, Auto/Manual resolved
+float keelV     = chf("%C%hullKeelV");
+float bilge     = chf("%C%hullBilgeRound");
+float flare     = chf("%C%hullFlare");
+float flareH    = chf("%C%hullFlareHeight");
+float rimRound  = chf("%C%rimRoundness");
+float revH      = chf("%C%lightRevealHeight");
+float revD      = chf("%C%lightRevealDepth");
+float wallRun   = chf("%C%innerWallRun");
+float cupD      = chf("%C%basinCup");
+
+float spineDeg  = chf("%C%spineCurve");
+float curlDeg   = chf("%C%tipCurl");
+float curlStart = chf("%C%tipCurlStart");
+
+float openAmt   = chf("%C%openAmount");
+float subAmt    = chf("%C%submergeAmount");
+float closedDeg = chf("%C%closedPitch");
+float tuckDeg   = chf("%C%submergeTuckPitch");
+float maxDeg    = chf("%C%pitchMax");
+int   guardOn   = chi("%C%collisionGuard");
+int   guardIt   = chi("%C%guardIterations");
+
+int   seed      = chi("%C%petalSeed");
+float jLen      = chf("%C%lengthJitter");
+float jWid      = chf("%C%widthJitter");
+float jAz       = chf("%C%azimuthJitter");
+float jPitch    = chf("%C%pitchJitter");
+float jRim      = chf("%C%rimJitter");
+
+int   uRes      = max(8, chi("%C%petalURes"));
+
+vector colHull  = chv("%C%colPetalHull");
+vector colLight = chv("%C%colPetalLight");
+vector colDeck  = chv("%C%colPetalDeck");
+vector colUnder = chv("%C%colPetalUnder");
+
+// ---- per-petal variation (jitter, then overrides) ------------------------------
+float pLen[], pWid[], pAz[], pPitch[], pRim[];
+resize(pLen, N); resize(pWid, N); resize(pAz, N); resize(pPitch, N); resize(pRim, N);
+for (int p = 0; p < N; p++) {
+    float r0 = rand(seed * 101 + p * 7 + 0.13) * 2.0 - 1.0;
+    float r1 = rand(seed * 101 + p * 7 + 1.37) * 2.0 - 1.0;
+    float r2 = rand(seed * 101 + p * 7 + 2.71) * 2.0 - 1.0;
+    float r3 = rand(seed * 101 + p * 7 + 3.19) * 2.0 - 1.0;
+    float r4 = rand(seed * 101 + p * 7 + 4.53) * 2.0 - 1.0;
+    pLen[p]   = 1.0 + r0 * jLen;
+    pWid[p]   = 1.0 + r1 * jWid;
+    pAz[p]    = float(p) / float(N) * M_TWO_PI + radians(r2 * jAz);
+    pPitch[p] = radians(r3 * jPitch);
+    pRim[p]   = 1.0 + r4 * jRim;
+}
+int nOv = chi("%C%petalOverrides");
+for (int i = 1; i <= nOv; i++) {
+    string s = itoa(i);
+    if (!chi("%C%ovEnable" + s)) continue;
+    int idx = chi("%C%ovPetal" + s);
+    if (idx < 0 || idx >= N) continue;
+    pLen[idx]   *= chf("%C%ovLength" + s);
+    pWid[idx]   *= chf("%C%ovWidth" + s);
+    pAz[idx]    += radians(chf("%C%ovAzimuth" + s));
+    pPitch[idx] += radians(chf("%C%ovPitch" + s));
+    pRim[idx]   *= chf("%C%ovRim" + s);
+}
+
+// hinge pitch: closed when openAmount = 0, flat on the sea when 1, + dive tuck
+float basePitch = radians(closedDeg) * (1.0 - openAmt) + radians(tuckDeg) * subAmt;
+float pitchCap  = radians(maxDeg);
+
+// ---- ring parameter (cosine spacing: denser at stern and bow) -----------------
+int RN = uRes + 1;
+float us[];
+resize(us, RN);
+for (int iu = 0; iu < RN; iu++)
+    us[iu] = 0.5 - 0.5 * cos(float(iu) / float(uRes) * M_PI);
+
+// plan outline domain: blunt stern / bow via baseNarrow / tipSharpness
+float u0   = baseNar * peakPos * 0.9;
+float u1   = 1.0 - (1.0 - tipSharp) * (1.0 - peakPos) * 0.6;
+float pkUU = lerp(u0, u1, peakPos);
+float aExp = log(0.5) / log(clamp(pkUU, 0.05, 0.95));
+
+// profile topology
+int NP = 13;
+int band[] = array(0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 4, 5, 5);
+string surf[] = array("underside", "hull", "rim", "light", "innerwall", "deck");
+int order[] = array(0,1,2,3,4,5,6,7,8,9,10,11,12,11,10,9,8,7,6,5,4,3,2,1);
+
+// ---- per petal / ring / side: spine, width, section heights --------------------
+// ring index k = p * RN + iu ; side index = k * 2 + sd (sd 0 = +X, 1 = -X)
+float Wside[], Rw[], Hring[], Dring[], Kring[], ths[], crs[], cys[];
+resize(Wside, N * RN * 2); resize(Rw, N * RN * 2);
+resize(Hring, N * RN); resize(Dring, N * RN); resize(Kring, N * RN);
+resize(ths, N * RN); resize(crs, N * RN); resize(cys, N * RN);
+
+for (int p = 0; p < N; p++) {
+    float L = Lbase * pLen[p];
+    float W = Wbase * pWid[p];
+    float aNext = (p == N - 1) ? pAz[0] + M_TWO_PI : pAz[p + 1];
+    float aPrev = (p == 0) ? pAz[N - 1] - M_TWO_PI : pAz[p - 1];
+    float hs[] = array(0.5 * (aNext - pAz[p]), 0.5 * (pAz[p] - aPrev));
+
+    float cr = 0.0, cy = 0.0, thPrev = 0.0, uPrev = 0.0;
+    for (int iu = 0; iu < RN; iu++) {
+        float u = us[iu];
+        float th = radians(spineDeg) * u + radians(curlDeg) * pow(smooth(curlStart, 1.0, u), 2.0);
+        if (iu > 0) {                                   // trapezoid-integrate the spine
+            float ds = (u - uPrev) * L;
+            float tm = 0.5 * (th + thPrev);
+            cr += ds * cos(tm);
+            cy += ds * sin(tm);
+        }
+        int k = p * RN + iu;
+        ths[k] = th; crs[k] = cr; cys[k] = cy;
+        thPrev = th; uPrev = u;
+
+        float endT = smooth(0.0, 0.08, u) * (1.0 - smooth(0.93, 1.0, u));
+        float H  = deckY + rimHbase * pRim[p] * (0.35 + 0.65 * endT);
+        Hring[k] = H;
+        Dring[k] = deckY;
+        Kring[k] = keelD * (0.25 + 0.75 * endT);
+
+        float uu   = lerp(u0, u1, u);
+        float wNom = 0.5 * W * pow(max(sin(M_PI * pow(uu, aExp)), 0.0), wProf);
+        // plan radius of this ring (conservative: rim leaning inward on a curved spine)
+        float rH = rootR + cr - H * abs(sin(th));
+        for (int sd = 0; sd < 2; sd++) {
+            float h = max(hs[sd], 1e-3);
+            float wMax = rH * tan(h) - (0.5 * minClear) / cos(h);
+            float w = max(smin(wNom, max(wMax, 0.0), 12.0), 1.0);
+            Wside[k * 2 + sd] = w;
+            Rw[k * 2 + sd] = min(rimWbase * pRim[p], w * 0.30);
+        }
+    }
+}
+
+// ---- 3D collision guard: largest pitch scale that keeps >= minClear -------------
+int stride = max(1, RN / 48);
+float scale = 1.0;
+float gap = min_gap(1.0, N, RN, stride, rootR, pAz, pPitch, ths, crs, cys, Wside, Hring, Rw, flareH, basePitch, pitchCap);
+if (guardOn && gap < minClear) {
+    float gapLo = min_gap(0.0, N, RN, stride, rootR, pAz, pPitch, ths, crs, cys, Wside, Hring, Rw, flareH, basePitch, pitchCap);
+    if (gapLo < minClear) {
+        scale = 0.0; gap = gapLo;                    // flat layout itself violates the canal
+    } else {
+        float lo = 0.0, hi = 1.0;
+        for (int it = 0; it < guardIt; it++) {
+            float mid = 0.5 * (lo + hi);
+            if (min_gap(mid, N, RN, stride, rootR, pAz, pPitch, ths, crs, cys, Wside, Hring, Rw, flareH, basePitch, pitchCap) >= minClear) lo = mid;
+            else hi = mid;
+        }
+        scale = lo;
+        gap = min_gap(lo, N, RN, stride, rootR, pAz, pPitch, ths, crs, cys, Wside, Hring, Rw, flareH, basePitch, pitchCap);
+    }
+}
+setdetailattrib(0, "guard_pitch_scale", scale);
+setdetailattrib(0, "min_clearance_m", gap);
+setdetailattrib(0, "clearance_ok", (gap >= minClear - 1e-3) ? 1 : 0);
+
+// ---- petal frame contract for downstream PCG stages (Stage 1 lattice etc.) ------
+// per ring: spine + section heights; per ring-side: beam half-width + deck inset
+float pPitchFinal[], deckInset[];
+resize(pPitchFinal, N);
+for (int p = 0; p < N; p++) pPitchFinal[p] = clamp((basePitch + pPitch[p]) * scale, 0.0, pitchCap);
+resize(deckInset, N * RN * 2);
+for (int k2 = 0; k2 < N * RN * 2; k2++)
+    deckInset[k2] = Rw[k2] + 2.0 * revD + 2.0 * min(wallRun, Wside[k2] * 0.10);
+float pL[];
+resize(pL, N);
+for (int p = 0; p < N; p++) pL[p] = Lbase * pLen[p];
+setdetailattrib(0, "pf_count", N);
+setdetailattrib(0, "pf_ures", uRes);
+setdetailattrib(0, "pf_rootR", rootR);
+setdetailattrib(0, "pf_cup", cupD);
+setdetailattrib(0, "pf_az", pAz);
+setdetailattrib(0, "pf_pitch", pPitchFinal);
+setdetailattrib(0, "pf_len", pL);
+setdetailattrib(0, "pf_th", ths);
+setdetailattrib(0, "pf_cr", crs);
+setdetailattrib(0, "pf_cy", cys);
+setdetailattrib(0, "pf_deckY", Dring);
+setdetailattrib(0, "pf_rimH", Hring);
+setdetailattrib(0, "pf_w", Wside);
+setdetailattrib(0, "pf_deckInset", deckInset);
+
+// ---- build hulls -----------------------------------------------------------------
+for (int p = 0; p < N; p++) {
+    matrix3 rot = 1;
+    rotate(rot, pAz[p], set(0, 1, 0));
+    float pitch = clamp((basePitch + pPitch[p]) * scale, 0.0, pitchCap);
+
+    int ring[], first[];
+    for (int iu = 0; iu < RN; iu++) {
+        int k = p * RN + iu;
+        float pxA[], pyA[], pxB[], pyB[];
+        section(k, 0, Wside, Hring, Dring, Kring, Rw, keelV, bilge, flare, flareH, rimRound, revH, revD, wallRun, cupD, pxA, pyA);
+        section(k, 1, Wside, Hring, Dring, Kring, Rw, keelV, bilge, flare, flareH, rimRound, revH, revD, wallRun, cupD, pxB, pyB);
+        float wA = Wside[k * 2];
+        float wB = Wside[k * 2 + 1];
+
+        int cur[];
+        for (int j = 0; j < len(order); j++) {
+            int i = order[j];
+            float x = 0.0;
+            float y = 0.0;
+            if (j <= NP - 1) { x = (pxA[i] < 0.0) ? 0.0 :  max(wA - pxA[i], wA * 0.04); y = pyA[i]; }
+            else             { x = (pxB[i] < 0.0) ? 0.0 : -max(wB - pxB[i], wB * 0.04); y = pyB[i]; }
+            int pt = addpoint(0, posept(x, y, rootR, crs[k], cys[k], ths[k], pitch, rot));
+            int b = band[i];
+            vector cd = (b == 0) ? colUnder : (b == 3) ? colLight : (b >= 4) ? colDeck : colHull;
+            setpointattrib(0, "Cd", pt, cd);
+            setpointattrib(0, "petal_id", pt, p);
+            setpointattrib(0, "petal_u", pt, us[iu]);
+            setpointattrib(0, "prof_idx", pt, i);
+            append(cur, pt);
+        }
+
+        if (iu > 0) {
+            int n = len(cur);
+            for (int s = 0; s < n; s++) {
+                int s2 = (s + 1) % n;
+                // Houdini winding: clockwise = outward
+                int pr = addprim(0, "poly", ring[s], cur[s], cur[s2], ring[s2]);
+                int bnd = band[min(order[s], order[s2])];
+                setprimattrib(0, "surface", pr, surf[bnd]);
+                setprimattrib(0, "petal_id", pr, p);
+                setprimattrib(0, "part_id", pr, 3);
+                setprimattrib(0, "pitch_deg", pr, degrees(pitch));
+                setprimgroup(0, surf[bnd], pr, 1);
+            }
+        }
+        if (iu == 0) first = cur;
+        ring = cur;
+    }
+
+    // stern + bow caps -> watertight hull
+    int capS = addprim(0, "poly");
+    for (int c = 0; c < len(first); c++) addvertex(0, capS, first[c]);
+    int capB = addprim(0, "poly");
+    for (int c = len(ring) - 1; c >= 0; c--) addvertex(0, capB, ring[c]);
+    int caps[] = array(capS, capB);
+    foreach (int cp; caps) {
+        setprimattrib(0, "surface", cp, "hull");
+        setprimattrib(0, "petal_id", cp, p);
+        setprimattrib(0, "part_id", cp, 3);
+        setprimattrib(0, "pitch_deg", cp, degrees(pitch));
+        setprimgroup(0, "hull", cp, 1);
+    }
+}

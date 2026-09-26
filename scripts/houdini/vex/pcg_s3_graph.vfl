@@ -1,0 +1,283 @@
+// =============================================================================
+// PCG STAGE 3 - TOPOLOGICAL WAYPOINT GRAPH & SPLINE ROUTING
+// (04_PCG_PIPELINE/01 Stage 3 + 04_PCG_PIPELINE/03_TRANSIT_AND_RESOURCE_GRAPH)
+// Detail wrangle. Input 1 = petal hulls (pf_* frame contract).
+// Points = graph nodes / spline samples, open polylines = edges.
+//   L1_HighSpeedTransit : core Maglev hub -> petal spine maglev (V = 0), ring bridges
+//   L2_UtilityTrunk     : core O2/desal plant + stem reactor -> petal O2 conduit / power bus
+//   L3_PedestrianEvac   : core ring + radial corridors, promenades, emergency access
+//                         cross streets, pressurised evac tube -> Core Citadel Bunker
+// Bridges at the blueprint radii join petal p's +V edge to petal p+1's -V edge;
+// FC_Center_Bridge_State retracts them when the petals fold apart.
+// =============================================================================
+
+vector posept(float x, y, rootR, cr, cy, th, pitch; matrix3 rot)
+{
+    float dr = cr - y * sin(th);
+    float up = cy + y * cos(th);
+    float dr2 = dr * cos(pitch) - up * sin(pitch);
+    float up2 = dr * sin(pitch) + up * cos(pitch);
+    return set(x, up2, rootR + dr2) * rot;
+}
+
+float ringf(float arr[]; int base, stride, off, uRes; float u)
+{
+    float t = acos(clamp(1.0 - 2.0 * u, -1.0, 1.0)) / M_PI * float(uRes);
+    int i0 = clamp(int(floor(t)), 0, uRes - 1);
+    float f = t - float(i0);
+    return lerp(arr[(base + i0) * stride + off], arr[(base + i0 + 1) * stride + off], f);
+}
+
+// NP mirrors every created point position: points added in this wrangle cannot be
+// read back with point(), so positions are tracked here (index = point number)
+int node(vector P; string type; int petal; vector NP[])
+{
+    int pt = addpoint(0, P);
+    append(NP, P);
+    setpointattrib(0, "NodeType", pt, type);
+    setpointattrib(0, "PetalIndex", pt, petal);
+    setpointattrib(0, "NodeID", pt, pt);
+    return pt;
+}
+
+int edge(int pts[]; string layer, etype; int petal; vector NP[])
+{
+    int pr = addprim(0, "polyline");
+    float Lsum = 0.0;
+    for (int i = 0; i < len(pts); i++) {
+        addvertex(0, pr, pts[i]);
+        if (i > 0) Lsum += distance(NP[pts[i - 1]], NP[pts[i]]);
+    }
+    setprimattrib(0, "Length_m", pr, Lsum);
+    setprimattrib(0, "Layer", pr, layer);
+    setprimattrib(0, "EdgeType", pr, etype);
+    setprimattrib(0, "PetalIndex", pr, petal);
+    setprimattrib(0, "EdgeID", pr, pr);
+    setprimattrib(0, "start_node", pr, pts[0]);
+    setprimattrib(0, "end_node", pr, pts[len(pts) - 1]);
+    setprimattrib(0, "bIsOperational", pr, 1);
+    return pr;
+}
+
+// ---- parameters -----------------------------------------------------------------
+float step      = max(1.0, chf("%C%graphStep"));
+float coreY     = chf("%C%coreDeckHeight");
+float coreRingR = chf("%C%coreRingRadius");
+float maglevLift= chf("%C%maglevLift");
+float utilOff   = chf("%C%utilityOffset");
+float utilDepth = chf("%C%utilityDepth");
+float evacDepth = chf("%C%evacTubeDepth");
+float stationSp = chf("%C%stationSpacing");
+float bunkerD   = chf("%C%bunkerDepth");
+float o2D       = chf("%C%o2PlantDepth");
+float reactorD  = chf("%C%stemReactorDepth");
+float edgeClr   = chf("%C%petalEdgeClearance");
+float emSpacing = chf("%C%emergencyAccessSpacing");
+float emWidth   = chf("%C%emergencyAccessWidth");
+float archH     = chf("%C%bridgeArch");
+float bridgeWC  = chf("%C%bridgeWaterClearance");
+float maxSpan   = chf("%C%bridgeMaxSpan");
+float maxFoldD  = radians(chf("%C%bridgeMaxFoldDelta"));
+float maxFold   = radians(chf("%C%bridgeMaxFold"));
+string radiiS[] = split(chs("%C%bridgeRadii"), " ,");
+float openAmt   = chf("%C%openAmount");
+
+int   N     = detail(1, "pf_count");
+int   uRes  = detail(1, "pf_ures");
+float rootR = detail(1, "pf_rootR");
+float cupD  = detail(1, "pf_cup");
+float az[]    = detail(1, "pf_az");
+float pitch[] = detail(1, "pf_pitch");
+float plen[]  = detail(1, "pf_len");
+float th[]    = detail(1, "pf_th");
+float cr[]    = detail(1, "pf_cr");
+float cy[]    = detail(1, "pf_cy");
+float dY[]    = detail(1, "pf_deckY");
+float W[]     = detail(1, "pf_w");
+float ins[]   = detail(1, "pf_deckInset");
+int RN = uRes + 1;
+if (N <= 0) error("PCG Stage 3: petal frame contract (pf_*) missing on input 1");
+if (npoints(0) > 0) error("PCG Stage 3: input 0 must be empty (node numbers must start at 0)");
+vector NP[];
+
+// ---- core nodes -----------------------------------------------------------------
+int hub     = node(set(0, coreY + maglevLift, 0), "CoreMaglevHub", -1, NP);
+int plaza   = node(set(0, coreY, 0), "TransferPlaza", -1, NP);
+int bunker  = node(set(0, coreY - bunkerD, 0), "CoreCitadelBunker", -1, NP);
+int o2plant = node(set(0, coreY - o2D, 0), "CoreO2DesalPlant", -1, NP);
+int reactor = node(set(0, coreY - reactorD, 0), "GeothermalStemReactor", -1, NP);
+int stemTx  = node(set(0, coreY - bunkerD - 20.0, 0), "StemTransferPoint", -1, NP);
+edge(array(plaza, hub), "L1_HighSpeedTransit", "VerticalTransport", -1, NP);
+edge(array(plaza, bunker), "L3_PedestrianEvac", "VerticalTransport", -1, NP);
+edge(array(bunker, stemTx), "L3_PedestrianEvac", "StemTransit", -1, NP);
+
+// core ring corridor (FC_Center_Ring_Corridor): one ring node per petal azimuth
+int ringNode[];
+resize(ringNode, N);
+for (int p = 0; p < N; p++)
+    ringNode[p] = node(set(sin(az[p]) * coreRingR, coreY, cos(az[p]) * coreRingR), "RingCorridorNode", -1, NP);
+for (int p = 0; p < N; p++) {
+    int q = (p + 1) % N;
+    float a0 = az[p];
+    float a1 = (q == 0) ? az[0] + M_TWO_PI : az[q];
+    int seg = max(2, int(ceil((a1 - a0) * coreRingR / step)));
+    int pts[];
+    append(pts, ringNode[p]);
+    for (int i = 1; i < seg; i++) {
+        float a = lerp(a0, a1, float(i) / float(seg));
+        append(pts, node(set(sin(a) * coreRingR, coreY, cos(a) * coreRingR), "", -1, NP));
+    }
+    append(pts, ringNode[q]);
+    edge(pts, "L3_PedestrianEvac", "RingCorridor", -1, NP);
+    edge(array(plaza, ringNode[p]), "L3_PedestrianEvac", "RadialCorridor", -1, NP);
+}
+
+// ---- per petal routing --------------------------------------------------------
+// remember every petal's +V / -V promenade samples for the bridges
+vector promA[], promB[];      // flattened positions, index = p * MAXS + i
+int    promAi[], promBi[];    // matching point numbers
+int    promCount[];
+int    spineRoot[];
+int    MAXS = int(ceil(5000.0 / step)) + 2;
+resize(promCount, N); resize(spineRoot, N);
+
+for (int p = 0; p < N; p++) {
+    matrix3 rot = 1;
+    rotate(rot, az[p], set(0, 1, 0));
+    float L = plen[p];
+    int base = p * RN;
+    float pit = pitch[p];
+
+    int mag[], o2[], pwr[], tube[], pa[], pb[];
+    float sList[];
+    int nS = int(floor(L / step));
+    for (int is = 0; is <= nS; is++) {
+        float s = float(is) * step;              // integer index: no float drift on s % spacing
+        float u = s / L;
+        float crs = ringf(cr, base, 1, 0, uRes, u);
+        float cys = ringf(cy, base, 1, 0, uRes, u);
+        float ths = ringf(th, base, 1, 0, uRes, u);
+        float dys = ringf(dY, base, 1, 0, uRes, u);
+        float hwA = ringf(W, base, 2, 0, uRes, u) - ringf(ins, base, 2, 0, uRes, u);
+        float hwB = ringf(W, base, 2, 1, uRes, u) - ringf(ins, base, 2, 1, uRes, u);
+        if (hwA < edgeClr || hwB < edgeClr) {        // deck too narrow: route ends here
+            if (len(sList) > 0) break;
+            else continue;
+        }
+        float yC = dys - cupD;
+        append(sList, s);
+        string st = (len(mag) == 0) ? "ArticulatedConnection" :
+                    (stationSp > 0.0 && (s % stationSp) < step) ? "PetalStation" : "";
+        int m = node(posept(0.0, yC + maglevLift, rootR, crs, cys, ths, pit, rot), st, p, NP);
+        if (st == "ArticulatedConnection") {
+            setpointattrib(0, "Fold_Progress", m, 1.0 - openAmt);
+            setpointattrib(0, "FoldPitch_deg", m, degrees(pit));
+        }
+        append(mag, m);
+        append(o2,  node(posept( utilOff, yC - utilDepth, rootR, crs, cys, ths, pit, rot), len(o2)  == 0 ? "RootJunctionValve" : "", p, NP));
+        append(pwr, node(posept(-utilOff, yC - utilDepth, rootR, crs, cys, ths, pit, rot), len(pwr) == 0 ? "PetalPowerSubstation" : "", p, NP));
+        append(tube, node(posept(0.0, yC - evacDepth, rootR, crs, cys, ths, pit, rot), len(tube) == 0 ? "EvacTubeRoot" : "", p, NP));
+        float xa = hwA - 0.5 * edgeClr;
+        float xb = hwB - 0.5 * edgeClr;
+        append(pa, node(posept( xa, lerp(yC, dys, xa / max(hwA, 1e-3)), rootR, crs, cys, ths, pit, rot), "", p, NP));
+        append(pb, node(posept(-xb, lerp(yC, dys, xb / max(hwB, 1e-3)), rootR, crs, cys, ths, pit, rot), "", p, NP));
+
+        // emergency access cross street at this station along the petal
+        if (emSpacing > 0.0 && (s % emSpacing) < step && s > 0.0) {
+            int jn = node(posept(0.0, yC, rootR, crs, cys, ths, pit, rot), "EmergencyJunction", p, NP);
+            int cross[];
+            int nA = max(1, int(floor(xa / step)));
+            int nB = max(1, int(floor(xb / step)));
+            append(cross, pb[len(pb) - 1]);
+            for (int c = -nB + 1; c <= nA - 1; c++) {
+                if (c == 0) { append(cross, jn); continue; }
+                float x = float(c) * step;
+                float v = (x >= 0.0) ? x / max(hwA, 1e-3) : x / max(hwB, 1e-3);
+                append(cross, node(posept(x, lerp(yC, dys, abs(v)), rootR, crs, cys, ths, pit, rot), "", p, NP));
+            }
+            append(cross, pa[len(pa) - 1]);
+            edge(cross, "L3_PedestrianEvac", "EmergencyAccess", p, NP);
+            edge(array(jn, tube[len(tube) - 1]), "L3_PedestrianEvac", "EvacAccessShaft", p, NP);
+        }
+    }
+    if (len(mag) < 2) continue;
+
+    edge(mag,  "L1_HighSpeedTransit", "MaglevRail", p, NP);
+    edge(o2,   "L2_UtilityTrunk", "O2Conduit", p, NP);
+    edge(pwr,  "L2_UtilityTrunk", "PowerBus", p, NP);
+    edge(tube, "L3_PedestrianEvac", "EvacTube", p, NP);
+    edge(pa,   "L3_PedestrianEvac", "Promenade", p, NP);
+    edge(pb,   "L3_PedestrianEvac", "Promenade", p, NP);
+
+    // core connections (FC_Center_Petal_Transit / FC_Center_Radial_Corridor)
+    edge(array(hub, mag[0]), "L1_HighSpeedTransit", "PetalTransit", p, NP);
+    edge(array(o2plant, o2[0]), "L2_UtilityTrunk", "O2Conduit", p, NP);
+    edge(array(reactor, pwr[0]), "L2_UtilityTrunk", "PowerBus", p, NP);
+    edge(array(bunker, tube[0]), "L3_PedestrianEvac", "EvacTube", p, NP);
+    int entry = node(posept(0.0, ringf(dY, base, 1, 0, uRes, 0.0) - cupD, rootR, 0.0, 0.0, 0.0, pit, rot), "PetalEntry", p, NP);
+    edge(array(ringNode[p], entry), "L3_PedestrianEvac", "RadialCorridor", p, NP);
+    edge(array(entry, pa[0]), "L3_PedestrianEvac", "Promenade", p, NP);
+    edge(array(entry, pb[0]), "L3_PedestrianEvac", "Promenade", p, NP);
+    edge(array(entry, tube[0]), "L3_PedestrianEvac", "EvacAccessShaft", p, NP);
+    spineRoot[p] = mag[0];
+
+    promCount[p] = min(len(pa), MAXS);
+    for (int i = 0; i < MAXS; i++) {
+        int ok = i < len(pa);
+        append(promA, ok ? NP[pa[i]] : set(0, 0, 0));
+        append(promB, ok ? NP[pb[i]] : set(0, 0, 0));
+        append(promAi, ok ? pa[i] : -1);
+        append(promBi, ok ? pb[i] : -1);
+    }
+}
+
+// ---- inter-petal ring bridges (blueprint: Tier 2 r=500, Tier 3 r=900) ------------
+int nBridges = 0, nRetracted = 0;
+foreach (string rs; radiiS) {
+    float R = atof(rs);
+    if (R <= 0.0) continue;
+    for (int p = 0; p < N; p++) {
+        int q = (p + 1) % N;
+        // +V promenade of p and -V promenade of q, sample closest to radius R
+        int ia = -1, ib = -1;
+        float da = 1e9, db = 1e9;
+        for (int i = 0; i < promCount[p]; i++) {
+            vector P = promA[p * MAXS + i];
+            float d = abs(length(set(P.x, 0, P.z)) - R);
+            if (d < da) { da = d; ia = i; }
+        }
+        for (int i = 0; i < promCount[q]; i++) {
+            vector P = promB[q * MAXS + i];
+            float d = abs(length(set(P.x, 0, P.z)) - R);
+            if (d < db) { db = d; ib = i; }
+        }
+        if (ia < 0 || ib < 0 || da > step || db > step) continue;   // a petal is too short here
+        int A = promAi[p * MAXS + ia];
+        int B = promBi[q * MAXS + ib];
+        vector PA = NP[A];
+        vector PB = NP[B];
+        float span = distance(PA, PB);
+        int seg = max(4, int(ceil(span / step)));
+        int pts[];
+        append(pts, A);
+        for (int i = 1; i < seg; i++) {
+            float t = float(i) / float(seg);
+            vector P = lerp(PA, PB, t);
+            P.y = max(P.y + archH * sin(M_PI * t), lerp(bridgeWC, P.y, abs(2.0 * t - 1.0)));
+            append(pts, node(P, "", -1, NP));
+        }
+        append(pts, B);
+        int pr = edge(pts, "L1_HighSpeedTransit", "RingBridge", -1, NP);
+        setprimattrib(0, "BridgeRadius", pr, R);
+        setprimattrib(0, "BridgeSpan_m", pr, span);
+        int ok = span <= maxSpan && abs(pitch[p] - pitch[q]) <= maxFoldD && max(pitch[p], pitch[q]) <= maxFold;
+        setprimattrib(0, "BridgeState", pr, ok ? "Connected" : "Retracted");
+        setprimattrib(0, "bIsOperational", pr, ok);
+        nBridges += 1;
+        if (!ok) nRetracted += 1;
+        setpointattrib(0, "NodeType", A, "BridgeAnchor");
+        setpointattrib(0, "NodeType", B, "BridgeAnchor");
+    }
+}
+setdetailattrib(0, "graph_bridges", nBridges);
+setdetailattrib(0, "graph_bridges_retracted", nRetracted);

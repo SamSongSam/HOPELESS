@@ -1,0 +1,125 @@
+// =============================================================================
+// PCG STAGE 2 - SPATIAL PARTITIONING & DISTRICT ZONING  (04_PCG_PIPELINE/01, Stage 2)
+// Point wrangle over the Stage 1 lattice. Input 1 = Stage 0 blueprint loader
+// (zone_* arrays read live from 01_DATA_TABLE_DISTRICT_ZONING.md).
+//  1. zone lookup by PetalIndex + radius           -> ZoneRow, ZoneTags, limits
+//  2. district / tier tag (01_WORLD zoning rules)   -> DistrictID, ZoneTag
+//  3. density falloff per district                  -> Density
+//  4. FC_Center_Building_Restriction / FC_Center_Petal_Clearance -> Buildable
+//  5. density-thinned build candidates              -> BuildCandidate
+// Nothing is deleted: restricted points keep their reason (spine / emergency
+// access points feed Stage 3 routing).
+// =============================================================================
+
+string zName[] = detail(1, "zone_name");
+string zType[] = detail(1, "zone_type");
+string zTags[] = detail(1, "zone_tags");
+int    zPetal[] = detail(1, "zone_petal");
+float  zMinR[] = detail(1, "zone_minR");
+float  zMaxR[] = detail(1, "zone_maxR");
+float  zMinZ[] = detail(1, "zone_minZ");
+float  zMaxZ[] = detail(1, "zone_maxZ");
+float  zMaxH[] = detail(1, "zone_maxBldH");
+float  zFall[] = detail(1, "zone_falloff");
+
+float t1 = chf("%C%tierBaseStart");
+float t2 = chf("%C%tierMidStart");
+float t3 = chf("%C%tierTipStart");
+float coreR = chf("%C%coreDeckRadius");
+
+int   petal = i@PetalIndex;
+float r = f@RadialDistance;
+
+// ---- 1. zone lookup -----------------------------------------------------------
+int zi = -1;
+for (int i = 0; i < len(zName); i++) {
+    int want = (petal < 0) ? -1 : petal;
+    if (zPetal[i] != want) continue;
+    if (r < zMinR[i] - 0.5 || r > zMaxR[i] + 0.5) continue;
+    zi = i;
+    break;
+}
+
+string reason = "";
+if (zi < 0) {
+    s@ZoneRow = "UNZONED";
+    s@DistrictType = "";
+    s@ZoneTags = "";
+    f@MaxBuildingHeight_m = 0.0;
+    f@DensityFalloffExponent = 1.0;
+    reason = "No_Zone";
+} else {
+    s@ZoneRow = zName[zi];
+    s@DistrictType = zType[zi];
+    s@ZoneTags = zTags[zi];
+    f@MaxBuildingHeight_m = zMaxH[zi];
+    f@DensityFalloffExponent = zFall[zi];
+    if (f@Elevation_Z < zMinZ[zi] || f@Elevation_Z > zMaxZ[zi]) reason = "Zone_Z_Range";
+}
+
+// ---- 2. district (01_WORLD PCG District Zoning Rules) --------------------------
+string dist[] = array("DIST_CORE", "DIST_PETAL_BASE", "DIST_PETAL_MID", "DIST_PETAL_TIP");
+string ztag[] = array("Zone.Core", "Zone.Petal.Base", "Zone.Petal.Mid", "Zone.Petal.Tip");
+int tier = clamp(i@RingTier, 0, 3);
+s@DistrictID = dist[tier];
+s@ZoneTag = ztag[tier];
+
+// ---- 3. density falloff (Center-Peak / Linear High / Uniform High / Edge-Peak) ---
+float d = 1.0;
+if (tier == 0)      d = exp(-pow(r / max(coreR, 1e-3), 2.0) * 1.5);
+else if (tier == 1) d = 1.0 - 0.4 * clamp((r - t1) / max(t2 - t1, 1e-3), 0.0, 1.0);
+else if (tier == 2) d = 0.9;
+else {
+    float rEnd = (zi >= 0) ? zMaxR[zi] : t3 + 350.0;
+    d = lerp(0.4, 1.0, clamp((r - t3) / max(rEnd - t3, 1e-3), 0.0, 1.0));
+}
+f@Density = pow(clamp(d, 0.0, 1.0), f@DensityFalloffExponent);
+
+// ---- 4. restrictions (03.02.01 FC_Center_Building_Restriction / Petal_Clearance) --
+float coneClr   = chf("%C%centerConeClearance");
+float pylonClr  = chf("%C%protectionPylonClearance");
+float stamenR   = chf("%C%stamenRingRadius");
+float innerClr  = chf("%C%petalInnerClearance");
+float edgeClr   = chf("%C%petalEdgeClearance");
+float transClr  = chf("%C%transportClearance");
+float emSpacing = chf("%C%emergencyAccessSpacing");
+float emWidth   = chf("%C%emergencyAccessWidth");
+float domeR     = chf("%C%barrierRadius");
+float domeH     = chf("%C%barrierHeight");
+float domeHead  = chf("%C%barrierHeadroom");
+float minBldH   = chf("%C%minBuildingHeight");
+int   closedOK  = chi("%C%buildableClosedState");
+float openAmt   = chf("%C%openAmount");
+
+// barrier projection envelope: buildings must stay under the dome minus headroom
+float domeY = domeH * sqrt(max(0.0, 1.0 - pow(r / max(domeR, 1e-3), 2.0)));
+f@MaxBuildingHeight_m = min(f@MaxBuildingHeight_m, domeY - domeHead - f@Elevation_Z);
+
+if (reason == "") {
+    if (petal < 0 && r < coneClr)                                 reason = "Center_Cone_Clearance";
+    else if (abs(r - stamenR) < pylonClr)                         reason = "Protection_Pylon_Clearance";
+    else if (petal >= 0 && f@AlongDistance < innerClr)            reason = "Petal_Inner_Clearance";
+    else if (petal >= 0 && f@EdgeDistance < edgeClr)              reason = "Petal_Edge_Clearance";
+    else if (petal >= 0 && f@SpineDistance < transClr)            reason = "Transport_Clearance";
+    else if (petal >= 0 && emSpacing > 0.0 &&
+             (f@AlongDistance % emSpacing) < emWidth)             reason = "Emergency_Access_Clearance";
+    else if (petal >= 0 && !closedOK && openAmt < 0.999)          reason = "Buildable_Closed_State";
+    else if (f@MaxBuildingHeight_m < minBldH)                     reason = "Barrier_Height_Limit";
+}
+s@RestrictReason = reason;
+i@Buildable = (reason == "") ? 1 : 0;
+
+// ---- 5. density-thinned build candidates ----------------------------------------
+float keep = f@Density * chf("%C%buildDensityScale");
+i@BuildCandidate = (i@Buildable && rand(i@lattice_id * 7.31 + chi("%C%pcgSeed") * 0.173) < keep) ? 1 : 0;
+
+setpointgroup(0, "buildable", @ptnum, i@Buildable);
+setpointgroup(0, "build_candidate", @ptnum, i@BuildCandidate);
+setpointgroup(0, "promenade", @ptnum, reason == "Petal_Edge_Clearance");
+setpointgroup(0, "transport_spine", @ptnum, reason == "Transport_Clearance");
+setpointgroup(0, "emergency_access", @ptnum, reason == "Emergency_Access_Clearance");
+
+// debug colour: zone hue, restricted points dimmed
+vector zc = (zi < 0) ? set(1, 0, 0) : hsvtorgb(set(float(max(petal, 0)) / 8.0 + (petal < 0 ? 0.12 : 0.0), petal < 0 ? 0.2 : 0.55, 0.95));
+@Cd = i@Buildable ? zc : zc * 0.35;
+if (i@BuildCandidate) @Cd = lerp(@Cd, set(1, 1, 1), 0.35);

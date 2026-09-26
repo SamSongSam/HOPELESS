@@ -1,0 +1,128 @@
+// =============================================================================
+// PCG STAGE 1 - MATHEMATICAL LATTICE & POLAR GRID   (04_PCG_PIPELINE/01, Stage 1)
+// Detail wrangle. Input 1 = petal hulls carrying the pf_* frame contract.
+// Emits points ON the live campus decks (follows every petal parm: shape,
+// pitch, curl, jitter, overrides) plus the core receptacle plaza.
+// Attributes (blueprint names): PetalIndex, RingTier, PetalU_Normalized,
+// PetalV_Normalized, Elevation_Z  + RadialDistance, N, lattice_id,
+// AlongDistance / SpineDistance / EdgeDistance (metres, used by Stage 2 restrictions)
+// =============================================================================
+
+// same pose as part03_academic_petals.vfl (keep in sync)
+vector posept(float x, y, rootR, cr, cy, th, pitch; matrix3 rot)
+{
+    float dr = cr - y * sin(th);
+    float up = cy + y * cos(th);
+    float dr2 = dr * cos(pitch) - up * sin(pitch);
+    float up2 = dr * sin(pitch) + up * cos(pitch);
+    return set(x, up2, rootR + dr2) * rot;
+}
+
+// linear sample of a per-ring array at petal parameter u (rings are cosine-spaced)
+float ringf(float arr[]; int base, stride, off, uRes; float u)
+{
+    float t = acos(clamp(1.0 - 2.0 * u, -1.0, 1.0)) / M_PI * float(uRes);
+    int i0 = clamp(int(floor(t)), 0, uRes - 1);
+    float f = t - float(i0);
+    return lerp(arr[(base + i0) * stride + off], arr[(base + i0 + 1) * stride + off], f);
+}
+
+int ringTier(float r; float t1, t2, t3)
+{
+    if (r < t1) return 0;
+    if (r < t2) return 1;
+    if (r < t3) return 2;
+    return 3;
+}
+
+float spacing  = max(0.5, chf("%C%latticeSpacing"));
+float coreY    = chf("%C%coreDeckHeight");
+float coreR    = chf("%C%coreDeckRadius");
+float t1 = chf("%C%tierBaseStart");     // 01_WORLD: Tier1 from 150m
+float t2 = chf("%C%tierMidStart");      //           Tier2 from 350m
+float t3 = chf("%C%tierTipStart");      //           Tier3 from 750m
+
+int   N     = detail(1, "pf_count");
+int   uRes  = detail(1, "pf_ures");
+float rootR = detail(1, "pf_rootR");
+float cupD  = detail(1, "pf_cup");
+float az[]    = detail(1, "pf_az");
+float pitch[] = detail(1, "pf_pitch");
+float plen[]  = detail(1, "pf_len");
+float th[]    = detail(1, "pf_th");
+float cr[]    = detail(1, "pf_cr");
+float cy[]    = detail(1, "pf_cy");
+float dY[]    = detail(1, "pf_deckY");
+float W[]     = detail(1, "pf_w");
+float ins[]   = detail(1, "pf_deckInset");
+int RN = uRes + 1;
+
+if (N <= 0) error("PCG Stage 1: petal frame contract (pf_*) missing on input 1");
+
+int lid = 0;
+
+// ---- core receptacle plaza (Tier 0) ------------------------------------------
+for (float r = spacing * 0.5; r <= coreR; r += spacing) {
+    int n = max(1, int(floor(M_TWO_PI * r / spacing)));
+    for (int i = 0; i < n; i++) {
+        float a = (float(i) + 0.5) / float(n) * M_TWO_PI;
+        int pt = addpoint(0, set(sin(a) * r, coreY, cos(a) * r));
+        setpointattrib(0, "PetalIndex", pt, -1);
+        setpointattrib(0, "RingTier", pt, 0);
+        setpointattrib(0, "PetalU_Normalized", pt, r / max(coreR, 1e-3));
+        setpointattrib(0, "PetalV_Normalized", pt, a / M_TWO_PI * 2.0 - 1.0);
+        setpointattrib(0, "Elevation_Z", pt, coreY);
+        setpointattrib(0, "RadialDistance", pt, r);
+        setpointattrib(0, "N", pt, set(0, 1, 0));
+        setpointattrib(0, "AlongDistance", pt, r);
+        setpointattrib(0, "SpineDistance", pt, 0.0);
+        setpointattrib(0, "EdgeDistance", pt, coreR - r);
+        setpointattrib(0, "lattice_id", pt, lid);
+        lid += 1;
+    }
+}
+
+// ---- petal decks (Tier 1..3) -------------------------------------------------
+for (int p = 0; p < N; p++) {
+    matrix3 rot = 1;
+    rotate(rot, az[p], set(0, 1, 0));
+    float L = plen[p];
+    int base = p * RN;
+    for (float s = spacing * 0.5; s < L; s += spacing) {
+        float u = s / L;
+        float crs = ringf(cr, base, 1, 0, uRes, u);
+        float cys = ringf(cy, base, 1, 0, uRes, u);
+        float ths = ringf(th, base, 1, 0, uRes, u);
+        float dys = ringf(dY, base, 1, 0, uRes, u);
+        float hwA = max(ringf(W, base, 2, 0, uRes, u) - ringf(ins, base, 2, 0, uRes, u), 0.0);
+        float hwB = max(ringf(W, base, 2, 1, uRes, u) - ringf(ins, base, 2, 1, uRes, u), 0.0);
+        if (hwA + hwB < spacing) continue;
+
+        // columns centred on the spine (V = 0 exists -> spine corridor for Stage 3)
+        int nA = int(floor(hwA / spacing));
+        int nB = int(floor(hwB / spacing));
+        for (int c = -nB; c <= nA; c++) {
+            float x = float(c) * spacing;
+            float v = (x >= 0.0) ? x / max(hwA, 1e-3) : x / max(hwB, 1e-3);
+            float y = lerp(dys - cupD, dys, abs(v));
+            vector P  = posept(x, y, rootR, crs, cys, ths, pitch[p], rot);
+            vector Pn = posept(x, y + 1.0, rootR, crs, cys, ths, pitch[p], rot);
+            float rH = length(set(P.x, 0, P.z));
+            int pt = addpoint(0, P);
+            setpointattrib(0, "PetalIndex", pt, p);
+            setpointattrib(0, "RingTier", pt, ringTier(rH, t1, t2, t3));
+            setpointattrib(0, "PetalU_Normalized", pt, u);
+            setpointattrib(0, "PetalV_Normalized", pt, v);
+            setpointattrib(0, "Elevation_Z", pt, P.y);
+            setpointattrib(0, "RadialDistance", pt, rH);
+            setpointattrib(0, "N", pt, normalize(Pn - P));
+            setpointattrib(0, "AlongDistance", pt, s);                       // from hinge (m)
+            setpointattrib(0, "SpineDistance", pt, abs(x));                  // from V = 0 (m)
+            setpointattrib(0, "EdgeDistance", pt, (x >= 0.0) ? hwA - x : hwB + x); // to deck edge (m)
+            setpointattrib(0, "lattice_id", pt, lid);
+            lid += 1;
+        }
+    }
+}
+setdetailattrib(0, "lattice_spacing_m", spacing);
+setdetailattrib(0, "lattice_count", lid);

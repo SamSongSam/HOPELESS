@@ -1,0 +1,164 @@
+// =============================================================================
+// PCG STAGE 3b - DISASTER ISOLATION & EVACUATION ROUTING
+// (04_PCG_PIPELINE/03_TRANSIT_AND_RESOURCE_GRAPH section 3)
+// Detail wrangle over the Stage 3 graph (input 0).
+//  - floodedPetals: those petals' nodes/edges go non-operational (weight = inf)
+//  - Petal Root Junction Valve closes, Petal Power Substation islands to battery
+//  - ring bridges touching a flooded petal retract
+//  - Dijkstra from Core Citadel Bunker over operational L3 edges (+ bridges if
+//    evacUseBridges): EvacDistance_m (metres, -1 = cut off) and EvacNextNode
+//    (next hop toward the bunker, for pedestrian AI)
+// =============================================================================
+
+// ---- min-heap on parallel arrays (key = distance, val = node) ----------------
+void hpush(float hk[]; int hv[]; float k; int v)
+{
+    append(hk, k); append(hv, v);
+    int i = len(hk) - 1;
+    while (i > 0) {
+        int par = (i - 1) / 2;
+        if (hk[par] <= hk[i]) break;
+        float tk = hk[par]; hk[par] = hk[i]; hk[i] = tk;
+        int tv = hv[par]; hv[par] = hv[i]; hv[i] = tv;
+        i = par;
+    }
+}
+int hpop(float hk[]; int hv[]; float k)
+{
+    int v = hv[0];
+    k = hk[0];
+    int last = len(hk) - 1;
+    hk[0] = hk[last]; hv[0] = hv[last];
+    resize(hk, last); resize(hv, last);
+    int i = 0;
+    while (1) {
+        int l = 2 * i + 1, r = l + 1, m = i;
+        if (l < len(hk) && hk[l] < hk[m]) m = l;
+        if (r < len(hk) && hk[r] < hk[m]) m = r;
+        if (m == i) break;
+        float tk = hk[m]; hk[m] = hk[i]; hk[i] = tk;
+        int tv = hv[m]; hv[m] = hv[i]; hv[i] = tv;
+        i = m;
+    }
+    return v;
+}
+
+int np = npoints(0);
+int nprim = nprimitives(0);
+
+// ---- 1. flooding / isolation -------------------------------------------------------
+int flooded[];
+resize(flooded, 64);
+foreach (string t; split(chs("%C%floodedPetals"), " ,")) {
+    int f = atoi(t);
+    if (f >= 0 && f < 64) flooded[f] = 1;
+}
+for (int pt = 0; pt < np; pt++) {
+    int pi = point(0, "PetalIndex", pt);
+    int bad = (pi >= 0 && flooded[pi]);
+    setpointattrib(0, "bIsOperational", pt, bad ? 0 : 1);
+    string nt = point(0, "NodeType", pt);
+    if (nt == "RootJunctionValve")    setpointattrib(0, "ValveState", pt, bad ? "Closed" : "Open");
+    if (nt == "PetalPowerSubstation") setpointattrib(0, "PowerSource", pt, bad ? "LocalBattery" : "CoreGrid");
+}
+int opPrim[];
+resize(opPrim, nprim);
+for (int pr = 0; pr < nprim; pr++) {
+    int op = prim(0, "bIsOperational", pr);
+    int pi = prim(0, "PetalIndex", pr);
+    if (pi >= 0 && flooded[pi]) op = 0;
+    string et = prim(0, "EdgeType", pr);
+    if (et == "RingBridge") {
+        int a = prim(0, "start_node", pr), b = prim(0, "end_node", pr);
+        int pa = point(0, "PetalIndex", a), pb = point(0, "PetalIndex", b);
+        if ((pa >= 0 && flooded[pa]) || (pb >= 0 && flooded[pb])) {
+            op = 0;
+            setprimattrib(0, "BridgeState", pr, "Retracted");
+        }
+    }
+    opPrim[pr] = op;
+    setprimattrib(0, "bIsOperational", pr, op);
+}
+int retracted = 0;
+for (int pr = 0; pr < nprim; pr++)
+    if (prim(0, "EdgeType", pr) == "RingBridge" && !opPrim[pr]) retracted += 1;
+setdetailattrib(0, "graph_bridges_retracted", retracted);     // after flooding
+
+// ---- 2. adjacency (CSR) over the evacuation graph ------------------------------------
+int useBridges = chi("%C%evacUseBridges");
+int deg[];
+resize(deg, np);
+int eligible[];
+resize(eligible, nprim);
+for (int pr = 0; pr < nprim; pr++) {
+    string layer = prim(0, "Layer", pr);
+    string et = prim(0, "EdgeType", pr);
+    eligible[pr] = opPrim[pr] && (layer == "L3_PedestrianEvac" || (useBridges && et == "RingBridge"));
+    if (!eligible[pr]) continue;
+    int vs[] = primpoints(0, pr);
+    for (int i = 1; i < len(vs); i++) { deg[vs[i - 1]] += 1; deg[vs[i]] += 1; }
+}
+int off[];
+resize(off, np + 1);
+for (int i = 0; i < np; i++) off[i + 1] = off[i] + deg[i];
+int nbr[]; float wts[]; int fill[];
+resize(nbr, off[np]); resize(wts, off[np]); resize(fill, np);
+for (int pr = 0; pr < nprim; pr++) {
+    if (!eligible[pr]) continue;
+    int vs[] = primpoints(0, pr);
+    for (int i = 1; i < len(vs); i++) {
+        int a = vs[i - 1], b = vs[i];
+        float w = distance(point(0, "P", a), point(0, "P", b));
+        nbr[off[a] + fill[a]] = b; wts[off[a] + fill[a]] = w; fill[a] += 1;
+        nbr[off[b] + fill[b]] = a; wts[off[b] + fill[b]] = w; fill[b] += 1;
+    }
+}
+
+// ---- 3. Dijkstra from the bunker -------------------------------------------------
+int bunker = -1;
+for (int pt = 0; pt < np; pt++)
+    if (point(0, "NodeType", pt) == "CoreCitadelBunker") { bunker = pt; break; }
+if (bunker < 0) error("PCG Stage 3b: CoreCitadelBunker node not found");
+
+float dist[]; int prev[];
+resize(dist, np); resize(prev, np);
+for (int i = 0; i < np; i++) { dist[i] = 1e30; prev[i] = -1; }
+dist[bunker] = 0.0;
+float hk[]; int hv[];
+hpush(hk, hv, 0.0, bunker);
+while (len(hk) > 0) {
+    float k = 0.0;
+    int v = hpop(hk, hv, k);
+    if (k > dist[v]) continue;                  // stale heap entry
+    for (int e = off[v]; e < off[v + 1]; e++) {
+        int w = nbr[e];
+        float nd = dist[v] + wts[e];
+        if (nd < dist[w]) { dist[w] = nd; prev[w] = v; hpush(hk, hv, nd, w); }
+    }
+}
+
+int cut = 0; float far = 0.0;
+for (int pt = 0; pt < np; pt++) {
+    int inGraph = deg[pt] > 0 || pt == bunker;
+    float d = (dist[pt] < 1e29) ? dist[pt] : -1.0;
+    setpointattrib(0, "EvacDistance_m", pt, inGraph ? d : -1.0);
+    setpointattrib(0, "EvacNextNode", pt, prev[pt]);
+    if (inGraph && d < 0.0) cut += 1;
+    if (d > far) far = d;
+}
+// L3 nodes on flooded petals are not in the graph (their edges are cut), count them too
+for (int pr = 0; pr < nprim; pr++) {
+    if (prim(0, "Layer", pr) != "L3_PedestrianEvac" || opPrim[pr]) continue;
+    cut += 1;
+}
+setdetailattrib(0, "evac_max_distance_m", far);
+setdetailattrib(0, "evac_cut_edges_or_nodes", cut);
+
+// ---- 4. viewport colour: layer hue, evac distance on L3, grey when down -----------
+for (int pr = 0; pr < nprim; pr++) {
+    string layer = prim(0, "Layer", pr);
+    vector c = (layer == "L1_HighSpeedTransit") ? set(0.1, 0.8, 1.0) :
+               (layer == "L2_UtilityTrunk")     ? set(1.0, 0.6, 0.1) : set(0.3, 1.0, 0.45);
+    if (!opPrim[pr]) c = set(0.35, 0.1, 0.1);
+    setprimattrib(0, "Cd", pr, c);
+}
